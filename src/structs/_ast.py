@@ -1,5 +1,9 @@
+
+
 import sys
 sys.path.append("../")
+
+from src.compiler.compiler_exception import CompilerException
 
 class Token():
 
