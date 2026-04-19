@@ -109,7 +109,7 @@ A one-dimensional array is created as follows:
 
 where `SIZE` is a positive integer constant. It CANNOT be a variable or any kind of *expression*, because the memory required by the array is allocated already at compile time. Like strings, `arr` is a reference to a memory address where the first element of the array resides. Therefore, if you write for example `new_arr = arr;` and then modify element X of the array `arr`, you will also be modifying element X of the array `new_arr`. This happens precisely because both variables refer to the same first element of the array. So remember that a variable is not the array itself but a *reference*! It may also be important and interesting to realize that `array(N)` is not a function call, even though syntactically it looks like one.
 
-Only integers are actually stored in an array. However, you can seemingly store strings and boolean values in an array as well. Why? Strings appear as strings, but they are also references to memory locations, i.e. they are integers. Boolean values, in turn, are in reality the integers 1 and 0, so they are acceptable for the same reason. In this language, type checking is performed only for binary operators, not for parameters.
+Only integers are actually stored in an array. However, you can seemingly store strings and boolean values in an array as well. Why? Strings appear as strings, but they are also references to memory locations, i.e. they are integers. Boolean values, in turn, are in reality the integers 1 and 0, so they are acceptable for the same reason. In this language, type checking is performed only for binary operators and variable declarations, not for function parameters.
 
 You can insert a value into an array with
 
