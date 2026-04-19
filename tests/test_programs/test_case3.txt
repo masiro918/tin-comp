@@ -1,0 +1,3 @@
+var i = 10;
+
+while True do { print_int(i);

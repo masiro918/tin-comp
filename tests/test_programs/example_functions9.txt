@@ -1,0 +1,5 @@
+fun sum(a, b) {
+	return a + b;
+}
+
+print_int(sum(2, 3));

@@ -1,0 +1,10 @@
+#!/bin/sh
+cd tests
+
+if [ -n "$3" ]
+then
+	python3 ../src/compiler/main.py ../$1 $2 $3
+else
+	python3 ../src/compiler/main.py ../$1 $2
+fi
+mv $2 ../$2 > /dev/null 2>&1

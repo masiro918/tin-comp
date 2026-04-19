@@ -1,0 +1,7 @@
+{
+    var i = 10;
+    print_int(i);
+
+    while i > 1 do i = i - 1
+    print_int(i);
+}

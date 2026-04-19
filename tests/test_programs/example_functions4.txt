@@ -1,0 +1,20 @@
+fun hello() {
+	var a = "hello world";
+	return a;
+}
+
+fun concatenate() {
+	var a = " on suomeksi";
+	var b = " hei maailma";
+	var c = str_cat(a, b);
+	
+	return str_cat(hello(), c);
+}
+
+fun print_out() {
+	var s = concatenate();
+	print_str(s);
+}
+
+print_out();
+

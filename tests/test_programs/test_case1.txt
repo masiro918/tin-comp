@@ -1,0 +1,15 @@
+var b = true;
+var i = 10;
+
+while i >= 0 do {
+    var a = i;
+
+    if a % 2 == 0 then {
+        print_bool(b);
+        a = a - 1;
+    } else {
+        print_int(a);
+        a = a - 1;
+    }
+    i = a;
+}

@@ -1,0 +1,12 @@
+{
+    var a = 10;
+    while a > 0 do {
+        if a != 1 then {
+            print_int(a);
+            a = a - 1; 
+        } else {
+            print_int(10);
+            a = 0;
+        }
+    }
+}

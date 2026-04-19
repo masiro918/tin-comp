@@ -1,0 +1,5 @@
+var s = "Hello world!";
+
+while s do {
+    break;
+}

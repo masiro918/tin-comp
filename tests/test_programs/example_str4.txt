@@ -1,0 +1,15 @@
+while true do {
+    var s1 = "hello ";
+    var s2 = "world!";
+
+    var s3 = str_cat(s1, s2);
+    var s4 = "hello world!";
+
+    if str_cmp(s3, s4) or str_cmp(s1, s2) then {
+        print_str(s4);
+    } else {
+        var s5 = "bye world!";
+        print_str(s5)
+    }
+    break;
+}

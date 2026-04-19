@@ -1,0 +1,12 @@
+var x = 0;
+while x < 5 do {
+    var y = x;
+
+    while y > 0 do {
+        y = y - 1;
+        print_int(y);
+    };
+    x = x + 1;
+    print_int(x);
+};
+print_int(x);

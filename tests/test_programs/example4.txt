@@ -1,0 +1,5 @@
+{
+    var x = 4;
+    var result = (x+2)*2;
+    print_int(result);
+}

@@ -1,0 +1,17 @@
+fun palindrome() {
+	{
+		var a = "saippuakauppias";
+		var b = " ";
+		
+		var i = str_len(a) - 1;
+		while i >= 0 do {
+			b = str_cat(b, get_char_from_str(a, i));
+			i = i - 1;
+		}
+		
+
+		return b;
+	}
+}
+
+print_str(palindrome());

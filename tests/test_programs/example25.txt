@@ -1,0 +1,11 @@
+var s1 = "hello world";
+var s2 = "moi maailma";
+
+if str_cmp(s1, s2) or true then {
+    print_str(s1);
+} else {
+	var b: Bool = true;
+    if b then {
+        print_str(s2);
+    }
+}

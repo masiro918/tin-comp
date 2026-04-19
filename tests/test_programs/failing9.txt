@@ -1,0 +1,1 @@
+var s: Bool = 7;    // fails

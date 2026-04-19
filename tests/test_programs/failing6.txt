@@ -1,0 +1,20 @@
+var s1 = "Hello world!";
+var s2 = "Bye world!";
+
+var i: Int = 0;
+
+while i < 10 do {
+	if i % 2 == 0 then {
+		print_str(s1);
+		i = i + 1;
+		continue;
+	} else {
+		if str_cmp(s1, s2) then {
+			// never here
+		} else {
+			var str = str_cat(s1, s2); // fails here beacuse of illegal var name
+			print_str(str);
+		}
+	}
+	i = i + 1;
+}

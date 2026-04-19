@@ -1,0 +1,14 @@
+var s1 = "Hello ";
+var s2 = "world!";
+
+var i: Int = 0;
+
+while i < 5 do {
+	if str_cmp(s1, s2) == false then {
+		var s3 = str_cat(s1, s2);
+		print_str(s3);
+		i = i + 1;
+		continue;
+	}
+	break;
+}

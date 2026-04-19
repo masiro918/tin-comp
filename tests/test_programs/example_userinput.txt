@@ -1,0 +1,23 @@
+fun factorial(decimal): Int {
+	if decimal > 1 then {
+		return factorial(decimal - 1) * decimal;
+	}
+	
+	return 1;
+}
+
+
+print_str("Please input a number to get factorial. 'q' to exit");
+
+while true do {
+	print_str2(">");
+
+	var user_inpt = input_str();
+	
+	if str_cmp(user_inpt, "q") then {
+		break;
+	}
+	
+	var decimal = str_to_int(user_inpt);
+	print_int(factorial(decimal));
+}

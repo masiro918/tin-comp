@@ -1,0 +1,4 @@
+v0.9.8 - 17.4.2026
+Lot of bug fixes, unfortunetly there are still lof to bugs. Also extended user manual.
+
+	<Matias Siro>

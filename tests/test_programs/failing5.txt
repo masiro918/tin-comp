@@ -1,0 +1,5 @@
+var i = 0;
+
+while i < (j=0) do {
+	continue;
+}

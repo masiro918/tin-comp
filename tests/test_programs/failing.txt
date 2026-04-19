@@ -1,0 +1,5 @@
+var i = 0;
+
+while i < print_int() do {
+	continue;
+}

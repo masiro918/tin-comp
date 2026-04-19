@@ -1,0 +1,5 @@
+var str_ = "input> ";
+
+print_str(str_);
+
+var arr = array(str_);

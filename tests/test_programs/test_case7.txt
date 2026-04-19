@@ -1,0 +1,11 @@
+var i = 0;
+
+while true do {
+    if i == 10 then { 
+        print_bool(false);
+        break;
+    } else {
+        print_bool(true);
+        i = i + 1;
+    }
+}

@@ -1,0 +1,103 @@
+/*
+ * Kokonaislukuneliöjuuri (palauttaa lattia-arvon)
+ */
+fun oma_sqrt(luku): Int {
+    var arvaus: Int = luku / 2;
+    
+    if luku <= 1 then {
+        return luku;
+    }
+
+    while (arvaus * arvaus) > luku do {
+        arvaus = (arvaus + luku / arvaus) / 2;
+    }
+
+    return arvaus;
+}
+
+/* 
+ * Yksinkertainen laskin 
+ */
+fun laske(a, b, operaatio): Int {
+    if str_cmp(operaatio, "+") then {
+        return a + b;
+    } 
+    
+    if str_cmp(operaatio, "-") then {
+        return a - b;
+    } 
+    
+    if str_cmp(operaatio, "*") then {
+        return a * b;
+    } 
+    
+    if str_cmp(operaatio, "/") then {
+        if b != 0 then {
+            return a / b; // kokonaislukujako
+        } else {
+            print_str("Virhe: jako nollalla!");
+            return 0;
+        }
+    } else {
+        print_str2("Tuntematon operaatio! ");
+        print_str(operaatio);
+        return 0;
+    }
+}
+
+/* 
+ * Pääohjelma 
+ */
+fun begin() {
+    var komento = create_empty_str();
+    var operaatio = create_empty_str();
+    var a: Int = 0;
+    var b: Int = 0;
+    var viesti = create_empty_str();
+
+    print_str2("Anna komento: ");
+
+    while true do {
+        var komento = input_str();
+
+        if str_cmp(komento, "lopeta") then {
+            print_str("Ohjelma lopetetaan.");
+            break;
+        }
+        
+        if str_cmp(komento, "laske") then {
+            print_str2("Anna kaksi lukua: ");
+            a = str_to_int(input_str());
+            b = str_to_int(input_str());
+
+            print_str("Anna operaatio: ");
+            operaatio = input_str();
+
+            var tulos: Int = laske(a, b, operaatio);
+            print_int(tulos);
+            print_str2("Anna komento: ");
+            continue;
+
+        } 
+        
+        if str_cmp(komento, "sqrt") then {
+            print_str2("Anna luku: ");
+            a = str_to_int(input_str());
+
+            if (a < 0) then {
+                print_str("Ei voida laskea negatiivisen luvun neliöjuurta.");
+            } else {
+                var tulos: Int = oma_sqrt(a);
+                print_str(str_cat("Kokonaislukuneliöjuuri: ", int_to_str(tulos)));
+            }
+        } else {
+            print_str("Tuntematon komento!");
+        }
+        
+        print_str2("Anna komento: ");
+    }
+
+    return 0;
+}
+
+begin();

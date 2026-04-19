@@ -1,0 +1,6 @@
+{
+    var x = 9;
+    if (x + 1) == 10 then {
+        print_int(10) 
+    } else print_int(x)
+}

@@ -1,0 +1,12 @@
+{
+	var istrnt = 3;
+	{
+		if istrnt == 3 then {
+			print_bool(true);
+		}
+	}
+	
+	print_int(istrnt);
+}
+
+

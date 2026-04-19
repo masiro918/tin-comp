@@ -1,0 +1,17 @@
+fun palindrome(s): Str {
+	var len_s = str_len(s);
+	
+	var palindrome_s = create_empty_str();
+	
+	var i: Int = len_s - 1;
+	while i >= 0 do {
+		var c = get_char_from_str(s, i);
+		palindrome_s = str_cat(palindrome_s, c);
+		i = i - 1;
+	}
+	
+	s = palindrome_s;
+	return s;
+}
+
+print_str(palindrome(str_cat("saippuakauppias", create_empty_str())));

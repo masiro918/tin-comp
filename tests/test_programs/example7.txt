@@ -1,0 +1,5 @@
+{
+    var i: Int = (7+3) * pow2(2);
+
+    if i == 70 then print_int(i) else print_int(20)
+}

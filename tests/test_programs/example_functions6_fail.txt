@@ -1,0 +1,10 @@
+fun palindrome() {
+	{
+		var a = "saippuakauppias";
+		var b = " ";
+		
+		{
+	}
+}
+
+print_str(palindrome());

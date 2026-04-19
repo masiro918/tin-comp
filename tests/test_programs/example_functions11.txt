@@ -1,0 +1,13 @@
+fun echo(s, times: Bool) {
+	var newS = " ";
+	
+	var i: Int = 0;
+	while i < times do {
+		newS = str_cat(newS, s);
+		i = i + 1;
+	}
+	
+	return newS;
+}
+
+print_str(echo("hello ", 4));

@@ -1,0 +1,4 @@
+# this is adding 3 by 2
+var sum = 3 + 2;
+// result is 5 as we know
+print_int(sum);

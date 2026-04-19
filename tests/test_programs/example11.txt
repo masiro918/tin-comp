@@ -1,0 +1,6 @@
+{
+    var b: Bool = true;
+
+    while b do b = false
+    print_bool(b);
+}

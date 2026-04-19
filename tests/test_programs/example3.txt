@@ -1,0 +1,4 @@
+{
+    var a: Int = 3;
+    if a != 4 then print_int(a)
+}

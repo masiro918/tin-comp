@@ -1,0 +1,48 @@
+fun add(arr, idx, val) {
+    set(arr, idx, val);
+}
+
+fun sort(arr) {
+    // bubble sort
+    
+    var i: Int = 0;
+    var n: Int = 6;
+    var swapped = false;
+    while i < n do {
+    	swapped = false;
+    	var j = 0;
+    	while j < (n - i - 1) do {
+    		if get(arr, j) > get(arr, j+1) then {
+    			var temp = get(arr,j);
+                set(arr, j, get(arr, j+1));
+                set(arr, j + 1, temp);
+    			swapped = true;
+    		}
+    		j=j+1;
+    	}
+    	
+    	if swapped then { break; }
+    	i=i+1;
+    }
+}
+
+{
+    var arr = array(6);
+    
+    var i = 0;
+    while i < 6 do {
+        if i % 2 == 0 then {
+            add(arr, i, i);
+            i = i + 1;
+            continue;
+        }
+
+        add(arr, i, i * (5 * i + 2));
+        i = i + 1;
+    }
+    
+    sort(arr);
+    
+    i=0;
+    while i < 6 do { print_int(get(arr, i)); i=i+1; }
+}

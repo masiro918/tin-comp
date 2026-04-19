@@ -1,0 +1,9 @@
+fun factorial(decimal): Int {
+	if decimal > 1 then {
+		return factorial(decimal - 1) * decimal;
+	}
+	
+	return 1;
+}
+
+print_int(factorial(5));

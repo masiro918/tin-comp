@@ -1,0 +1,30 @@
+fun funktio(syote) {
+	print_str(syote);
+
+	var i1: Int = str_to_int(syote);
+
+	print_int(i1);
+
+	if pow2(i1) < pow2(i1 * 2) then {
+		i1 = i1 / 64;
+		// var new_i1 = pow2(pow2(i1));
+		var new_i1 = i1 * i1 * i1 * i1;
+		print_int(new_i1);
+		var s3 = "and back to integer type ";
+		var s2 = int_to_str(new_i1);
+		print_str2(s3);
+		print_str(s2);
+
+		var final = str_cat(s3, s2);
+		print_str(final);
+		f()
+	}
+
+}
+
+print_str2("anna luku ");
+
+var i1 = input_str();
+funktio(i1);
+
+var arr = array(9);

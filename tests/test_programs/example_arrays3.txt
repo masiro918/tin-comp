@@ -1,0 +1,18 @@
+var arr1 = array(3);
+var arr2 = array(3);
+var arr3 = array(3);
+
+set(arr1, 0, 0);
+set(arr1, 1, 1);
+set(arr1, 2, 2);
+
+set(arr3, 0, 0);
+set(arr3, 1, 1);
+set(arr3, 2, 2);
+
+var i = 0;
+while i < 3 do {
+    print_int(get(arr1, i));
+    set(arr2, i, get(arr1, get(arr3, i)));
+    i = i + 1;
+}

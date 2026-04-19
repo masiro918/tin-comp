@@ -1,0 +1,13 @@
+{
+    var i = 0;
+    var j = 0;
+
+    while i < 10 do {
+        while j < 10 do {
+            print_int(j);
+            j = j + 1;
+        }
+        print_int(i);
+        i = i + 1;
+    }
+}

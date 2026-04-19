@@ -1,0 +1,14 @@
+fun f1() {
+	print_str("hello world");
+}
+
+f1();
+f1();
+f1();
+
+var i = 0; 
+while i < 3 do { 
+    f1(); 
+    i = i + 1; 
+}
+

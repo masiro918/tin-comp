@@ -1,0 +1,24 @@
+var s1 = "Hello world!";
+
+var decimal = 25;
+var k = decimal;
+
+while k > str_len(s1) do {
+	s1 = str_cat(s1, "!");
+	k = k - 1;
+}
+
+if str_len(s1) < decimal then {
+	var i: Int = str_to_int(s1);	// get the reference of s1
+	
+	// let's print one char less than previous cycle
+	
+	var j = 0;
+	while i < (str_to_int(s1) + str_len(s1)) do {
+		print_str(s1 + j);
+		i = i + 1;
+		j = j + 1;
+	}
+}
+
+print_str("Hello world!");

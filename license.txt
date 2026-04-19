@@ -1,0 +1,8 @@
+Copyright (C) 2026 Matias Siro
+
+The file src/stdlib/stdlib.s is licensed under the MIT No Attribution License (MIT-0). See the LICENSE-MIT-0 file for the full license text under directory doc/
+
+All the other parts is licensed under the Apache License, Version 2.0. See the LICENSE-APACHE-2.0 file for the full license text under directory doc/. 
+
+Please note that binaries produced by this compiler may include or link against the programming language’s standard library.
+

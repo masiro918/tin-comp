@@ -1,0 +1,23 @@
+var i = 3;
+
+while true do {
+
+    var j = 0;
+    while true do {
+        if j < 3 then {
+            print_int(j);
+            j = j + 1;
+            continue;
+        }
+        break;
+    }
+
+    if i < 6 then {
+        print_int(i);
+        i = i + 1;
+        continue;
+    }
+    break;
+}
+
+print_bool(false);

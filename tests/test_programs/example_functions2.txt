@@ -1,0 +1,17 @@
+var i = 0; 
+
+fun f1() {
+	print_int(i);
+	print_str("hello world");
+}
+
+while i < 3 do { 
+    f1(); 
+    i = i + 1; 
+}
+
+
+f1();
+f1();
+f1();
+

@@ -1,0 +1,5 @@
+print_str(palindrome());
+
+fun palindrome return 0;
+
+

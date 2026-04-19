@@ -1,0 +1,5 @@
+while true do {
+    var s = "hello world!";
+    print_str(s);
+    break;
+}

@@ -1,0 +1,16 @@
+var i = 0;
+
+while i < 10 do {
+
+    if i != 9 then {
+        print_int(i);
+        i = i + 1;
+        continue;
+    }
+    
+    i = i + 1;
+    print_bool(true);
+}
+
+print_bool(false);
+print_int(-1);

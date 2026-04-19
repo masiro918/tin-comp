@@ -1,0 +1,20 @@
+{
+    var arr1 = array(3);
+    
+    set(arr1, 0, "hei maailma");
+    set(arr1, 1, "hello world");
+    set(arr1, 2, "hej!");
+    
+    var i = 0;
+    while i < 3 do {
+    	print_str(get(arr1, i));
+        set(arr1, i, get(arr1, 2));
+    	i = i + 1;
+    }
+    
+    i = 0;
+    while i < 3 do {
+    	print_str(get(arr1, i));
+    	i = i + 1;
+    }
+}

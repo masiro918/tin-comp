@@ -1,0 +1,25 @@
+var s1 = "Hello world!";
+var s2 = "Bye world!";
+
+s2 = s1;
+
+print_str(s2);
+
+
+print_str2(get_char_from_str(s1,0));
+print_str2(get_char_from_str(s1,1));
+print_str2(get_char_from_str(s1,2));
+print_str2(get_char_from_str(s1,3));
+print_str2(get_char_from_str(s1,4));
+
+print_str2(" ");
+
+s2 = "Joe";
+
+print_str2(get_char_from_str(s2,0));
+print_str2(get_char_from_str(s2,1));
+print_str2(get_char_from_str(s2,2));
+
+print_str2(get_char_from_str(s1,11));
+
+print_str(" ");

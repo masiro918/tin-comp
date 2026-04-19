@@ -1,0 +1,81 @@
+fun get_strings(string) {
+	var arr = array(2);
+	
+	var item = string;
+	// construct the finnish word
+	
+	var finnish = create_empty_str();
+	var english = create_empty_str();
+	
+	var j = 0;
+	while true do {
+		var char = get_char_from_str(item, j);
+		if str_cmp(char, ":") == false then {
+			finnish = str_cat(finnish, char);
+		} else {
+			var k = j + 1;
+			while k < str_len(item) do {
+				char = get_char_from_str(item, k);
+				
+				english = str_cat(english, char);
+				k = k + 1;
+			}
+			break;
+		}
+		j = j + 1;	
+	}
+	
+	set(arr, 0, finnish);
+	set(arr, 1, english);
+	return arr;
+}
+
+fun add_word(arr, ptr, finnish, english): Int {
+	var content = str_cat(finnish, str_cat(":", english));
+	set(arr, ptr, content);
+	return ptr + 1;
+}
+
+fun print_all(arr, ptr) {
+	var i: Int = 0;
+	
+	while i < ptr do {
+		var item = get(arr, i);
+		// parse the words
+		var words = get_strings(item);
+		var finnish = get(words, 0);
+		var english = get(words, 1);
+		
+		print_str2(finnish);
+		print_str2(" ");
+		print_str(english);
+		i = i + 1;
+	}
+}
+
+fun get() { }
+
+var words = array(40);
+var ptr = 0;
+
+while true do {
+	print_str2("> ");
+	var input = input_str();
+	
+	if str_cmp(input, "exit") then {
+		break;
+	}
+	
+	if str_cmp(input, "add") then {
+		print_str2("in finnish? ");
+		var finnish = input_str();
+		print_str2("in english? ");
+		var english = input_str();
+		var nextPtr = add_word(words, ptr, finnish, english);
+		ptr = nextPtr;
+	}
+	
+	if str_cmp(input, "print_all") then {
+		print_all(words, ptr);
+	}
+}

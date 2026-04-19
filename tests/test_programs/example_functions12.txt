@@ -1,0 +1,15 @@
+fun pwr(s: Int): Int {
+	return s * s;
+}
+
+fun is_more_than_zero(s: Int): Bool {
+	if s > 0 then {
+		return true;
+	}
+	
+	return false;
+}
+
+if is_more_than_zero(4) > 3 then {
+	print_bool(true);
+}
