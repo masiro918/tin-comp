@@ -26,7 +26,7 @@ from src.compiler.parser import Parser
 from src.compiler.type_checker import typecheck, userdefined_functions, variables
 from src.compiler.ir_generator import generate_ir
 from src.compiler.asm_generator import generate_asm
-from src.compiler.misc import pickup_functions
+from src.compiler.misc import pickup_functions, rename_str_type
 from src.structs._ast import SubProgram
 
 def compile_module(module: SubProgram, startpoint, is_main_fun = False) -> str:
@@ -64,6 +64,9 @@ def compile_modules(source: str):
     Compiles the functions one by one. Finally compiles the main function
     which is interpreted the code that is not covered in any custom function.
     """
+
+    # rename str type
+    source = rename_str_type(source)
 
     # startpoint is the line number where main function starts
     modules, startpoint = pickup_functions(source)

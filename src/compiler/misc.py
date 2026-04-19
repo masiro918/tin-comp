@@ -38,6 +38,12 @@ reserved_func_names = ['print_int', 'print_bool', 'print_str', 'print_str',
                        'input_str', 'create_empty_str', 'pow2', 'set',
                        'array', 'get']
 
+def rename_str_type(source_code: str) -> str:
+    """ Replaces type 'Str' to 'String'. """
+    
+    return source_code.replace(": Str", ": String")
+
+
 def check_func_name_validity(name: str):
     if name in reserved_func_names:
         raise CompilerException("You cannot define function as name " + str(name))
