@@ -156,7 +156,7 @@ while i < 10 do {
 }
 ```
 
-**Example 4 illustrating language feature: (user input, casting string to int and recursion):**
+**Example 4 illustrating language features: (user input, casting string to int and recursion):**
 ```
 fun factorial(decimal): Int {
 	if decimal > 1 then {
@@ -180,6 +180,64 @@ while true do {
 	var decimal: Int = str_to_int(user_inpt);
 	print_int(factorial(decimal));
 }
+```
+
+**Example 5 illustrating language features: (arrays):**
+```
+// bubble sort
+fun sort(numbers, count) {
+	var i: Int = 0;
+    while i < count do {
+		var j: Int = 0;
+		while j < (count - i - 1) do {
+            if get(numbers, j) > get(numbers, j+1) then {
+                var temp = get(numbers, j);
+                set(numbers, j, get(numbers, j+1));
+                set(numbers, j+1, temp);
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+}
+
+/*
+ * main program
+ */
+fun begin() {
+    var numbers = array(100);
+    var n: Int = 0;
+    var input = create_empty_str();
+
+    print_str("Input integers (type stop to exit):");
+
+    while n < 100 do {
+        print_str2("> ");
+        input = input_str();
+
+        if str_cmp(input, "stop") then {
+            break;
+        }
+
+        var number = str_to_int(input);
+        
+        set(numbers, n, number);
+        n = n + 1;
+    }
+
+	sort(numbers, n);
+
+    // Print sorted numbers
+    print_str("Sorted numbers:");
+    var i = 0;
+    while i < n do {
+		print_int(get(numbers, i));
+		i = i + 1;
+	}
+}
+
+// call the main program
+begin();
 ```
 ***
 
