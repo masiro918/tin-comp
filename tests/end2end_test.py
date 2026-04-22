@@ -758,7 +758,7 @@ def test_case64():
     except Exception as e:
         assert "cannot define function as name get" in str(e)
 
-def test_case53():
+def test_case65():
     import subprocess
 
     main("test_programs/large_program.txt", "a.out", "../src/")
