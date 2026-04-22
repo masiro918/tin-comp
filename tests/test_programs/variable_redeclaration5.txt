@@ -1,0 +1,61 @@
+// bubble sort
+fun sort(numbers, count) {
+	var i: Int = 0;
+    while i < count do {
+		var j: Int = 0;
+		while j < (count - i - 1) do {
+            if get(numbers, j) > get(numbers, j+1) then {
+                var temp = get(numbers, j);
+                set(numbers, j, get(numbers, j+1));
+                set(numbers, j+1, temp);
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+}
+
+/*
+ * main program
+ */
+fun begin() {
+    var numbers = array(100);
+    var n: Int = 0;
+    var input = create_empty_str();
+    
+    var a: Int = 777;
+    a = a + 1;
+    
+    print_str("Input integers (type stop to exit):");
+    
+    while n < 100 do {
+        print_str2("> ");
+        input = input_str();
+        
+        
+
+        if str_cmp(input, "stop") then {
+            break;
+        }
+
+        var number = str_to_int(input);
+        
+        set(numbers, n, number);
+        n = n + 1;
+    }
+
+	sort(numbers, n);
+	
+	var a = 0;
+
+    // Print sorted numbers
+    print_str("Sorted numbers:");
+    var i = 0;
+    while i < n do {
+		print_int(get(numbers, i));
+		i = i + 1;
+	}
+}
+
+// call the main program
+begin();

@@ -775,3 +775,38 @@ Anna komento: Anna kaksi lukua: Anna operaatio:
 -1
 Anna komento: Ohjelma lopetetaan.
 """
+
+def test_case66():
+    try:
+        main("test_programs/variable_redeclaration.txt", "a.out", "../src/")
+        assert True
+    except Exception as e:
+        assert False
+
+def test_case67():
+    try:
+        main("test_programs/variable_redeclaration2.txt", "a.out", "../src/")
+        assert True == False
+    except Exception as e:
+        assert "you cannot redeclarate variable input" in str(e)
+
+def test_case68():
+    try:
+        main("test_programs/variable_redeclaration3.txt", "a.out", "../src/")
+        assert True
+    except Exception as e:
+        assert False
+
+def test_case69():
+    try:
+        main("test_programs/variable_redeclaration4.txt", "a.out", "../src/")
+        assert True
+    except Exception as e:
+        assert False
+
+def test_case70():
+    try:
+        main("test_programs/variable_redeclaration5.txt", "a.out", "../src/")
+        assert True == False
+    except Exception as e:
+        assert "you cannot redeclarate variable a" in str(e)

@@ -88,7 +88,7 @@ def rename_variables(tokens: list[Token]) -> list[Token]:
                     level += 1
                 if tokens[j].text == "}":
                     level -= 1
-                    if level <= 0:
+                    if level < 0:
                         names = []
                 if tokens[j].text == name:
                     if tokens[j-1].text == "var" and (name in names):
