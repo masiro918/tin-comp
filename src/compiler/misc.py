@@ -82,13 +82,17 @@ def rename_variables(tokens: list[Token]) -> list[Token]:
 
             j=i+2
             names = []
+            level = 0
             while j < len(tokens):
+                if tokens[j].text == "{":
+                    level += 1
                 if tokens[j].text == "}":
-                    names = []
+                    level -= 1
+                    if level <= 0:
+                        names = []
                 if tokens[j].text == name:
                     if tokens[j-1].text == "var" and (name in names):
                         raise CompilerException(f"Line {tokens[j].L}: you cannot redeclarate variable {name}")
-                        j=j+1
                     names.append(name)
                     tokens[j].text = new_name
                 j=j+1
