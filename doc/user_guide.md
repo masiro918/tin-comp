@@ -1,6 +1,6 @@
 # Quick Guide to the Programming Language
 
-This short manual guides you programming with the programming language. After reading this document you are (hopefully) familiar with the language structure and restrictions of the language.
+This short manual guides you programming with the programming language. After reading this document you are (hopefully) familiar with the language structure and limitations of the language.
 
 ### Contents
 
@@ -126,7 +126,7 @@ where `L` is the position in the array. This function returns an integer.
 ## 4. VERY Important to know
 
 
-There are several important and significant restrictions and bugs to important to know when using the compiler.
+There are several important and significant limitations and bugs to important to know when using the compiler.
 
 - a string cannot be returned as a constant from a function
   - i.e. the following is not allowed: ```return "hello world";```
