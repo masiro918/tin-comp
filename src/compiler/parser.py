@@ -27,8 +27,7 @@ from src.compiler.misc import (
     is_binaryop, 
     is_identifier, 
     is_int_literal,
-    rename_variables,
-    var_names
+    rename_variables
 )
 
 from src.structs._ast import (

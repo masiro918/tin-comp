@@ -172,7 +172,7 @@ def translate_to_asm(ir: list[str]) -> str:
                     pass
                 else:
                     if args.__str__() != "[]":
-                    	# We have limited count of parameters. So we don't use stack for additional paramteters like System V 64 calling convention
+                    	# We have limited amount of parameters. So we don't use stack for additional paramteters like System V 64 calling convention
                         global param_regs
                         regs = param_regs
                         r=0

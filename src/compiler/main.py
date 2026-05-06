@@ -21,6 +21,7 @@ sys.path.append("../")
 
 from src.compiler.compiler_exception import CompilerException
 
+from src.compiler.optimizer import do_optimize
 from src.compiler.tokenizer import Tokenizer
 from src.compiler.parser import Parser
 from src.compiler.type_checker import typecheck, userdefined_functions, variables
@@ -56,8 +57,8 @@ def compile_module(module: SubProgram, startpoint, is_main_fun = False) -> str:
     if is_main_fun == False:
         global userdefined_functions
         userdefined_functions.append([module.name, module.ret_type])
-        return generate_asm(ir, module.name)
-    return generate_asm(ir, "main")
+        return do_optimize(generate_asm(ir, module.name))
+    return do_optimize(generate_asm(ir, "main"))
 
 def compile_modules(source: str):
     """ 
@@ -122,4 +123,5 @@ if __name__ == '__main__':
         sys.exit(1)
     except Exception as e:
         print("Internal error!")
+        raise Exception(e)
         sys.exit(1)
