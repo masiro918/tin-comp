@@ -59,7 +59,7 @@ def detect_unused_stack_mem_allocations():
     If there are unnecessary memory allocations, e.g. the compiler want to 
     allocate -64(%rbp), but -64(%rbp) is never used, this detects those.
     """
-    
+
     pass
 
 def do_optimize(asm_code: str) -> str:
@@ -71,6 +71,8 @@ def do_optimize(asm_code: str) -> str:
     for i in range(len(lines)):
         line = lines[i]
         if i+1 != len(lines):
+
+            # If there are unneccessry mem -> reg operation
             if detect_irrelevat_reg_mem_operation(line, lines[i+1]):
                 lines[i+1] = "\tnop"
 
