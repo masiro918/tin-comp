@@ -20,7 +20,10 @@ sys.path.append('../')
 from src.compiler.compiler_exception import CompilerException
 
 from src.compiler.misc import var_names
-from src.compiler.optimizer import eliminate_undefined_vars_in_load_insts
+from src.compiler.optimizer import (
+    eliminate_undefined_vars_in_load_insts,
+    eliminate_double_copy_operations
+)
 
 from src.structs._ast import (
     Expression, 
@@ -280,6 +283,7 @@ def generate_ir(root_expr: Expression, params: list[str] = None) -> list[Instruc
             i=i+1
     visit(root_expr)
     
-    # do variable optimization
+    # optimizations
     ins = eliminate_undefined_vars_in_load_insts(ins)
+    #ins = eliminate_double_copy_operations(ins)
     return ins

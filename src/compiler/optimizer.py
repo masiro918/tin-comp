@@ -26,6 +26,20 @@ def trim_string(string: str) -> str:
 
     return string.replace("\t", "").replace(" ", "")
 
+def eliminate_double_copy_operations(insts: list[Instruction]) -> list[Instruction]:
+    """
+    
+    TODO:
+
+    Copy(t1mp, x5)
+    Copy(x5, t12mp)
+
+    -> jos x5 EI OLE KÄYTÖSSÄ MISSÄÄN MUUALLA, tee
+
+        Copy(t1mp, t12mp)
+    """
+    return insts
+
 def eliminate_undefined_vars_in_load_insts(insts: list[Instruction]) -> list[Instruction]:
     """ 
     This is ir level optimize. Without this we reserve one unused ir var in
