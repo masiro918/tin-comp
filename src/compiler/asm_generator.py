@@ -333,7 +333,7 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
             if exists(variables, value) == False:
                 raise CompilerException("Assembly generation error: undeclarated variable detected in the IR code.")
         if re.match(r"(Call).{0,}", inst):
-            ret_var = inst.split(", ")[-1].replace(")", "")
+            ret_var = inst.split(", ")[-1].replace(")", "")            
             if exists(variables, ret_var) == False:
                 variables["" + ret_var] = f"{ptr_top_of_the_stack}(%rbp)"
                 ptr_top_of_the_stack -= 8

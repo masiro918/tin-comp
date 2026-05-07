@@ -98,6 +98,10 @@ class FunctionCall(Expression):
         self.func_name = func_name
         self.params = params
         self.line = line
+        self.func_type = "Unit"
+
+    def set_type(self, _type: str):
+        self.func_type = _type
 
     def __repr__(self):
         return f"FunctionCall(func_name=[{self.func_name}], params={self.params})"

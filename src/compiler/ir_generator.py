@@ -20,6 +20,7 @@ sys.path.append('../')
 from src.compiler.compiler_exception import CompilerException
 
 from src.compiler.misc import var_names
+from src.compiler.optimizer import eliminate_undefined_vars_in_load_insts
 
 from src.structs._ast import (
     Expression, 
@@ -90,8 +91,6 @@ def generate_ir(root_expr: Expression, params: list[str] = None) -> list[Instruc
                         else:
                             ins.append(LoadIntConst(
                                 expr.value, var.__str__()))
-                # Return the variable that holds
-                # the loaded value.
                 return var
             
             case String():
@@ -102,12 +101,10 @@ def generate_ir(root_expr: Expression, params: list[str] = None) -> list[Instruc
                 var = new_var()
 
                 if variable.__str__() in reserved_identifiers:
-                    var_bool = new_var()
                     if variable.__str__() == "true":
-                        ins.append(LoadBoolConst(True, var_bool.__str__()))
+                        ins.append(LoadBoolConst(True, var.__str__()))
                     else:
-                        ins.append(LoadBoolConst(False, var_bool.__str__()))
-                    ins.append(Copy(var_bool.__str__(), var.__str__()))
+                        ins.append(LoadBoolConst(False, var.__str__()))
                     return var
 
                 if stack_ctx.exists(variable) == False:
@@ -161,6 +158,8 @@ def generate_ir(root_expr: Expression, params: list[str] = None) -> list[Instruc
             case FunctionCall():
                 func_name = expr.func_name
                 func_params = expr.params
+                func_type = expr.func_type
+
                 ret_val = new_var()
 
                 vars = []
@@ -173,6 +172,7 @@ def generate_ir(root_expr: Expression, params: list[str] = None) -> list[Instruc
                     ins.pop(-1)
                     ins.append(Call(func_name, f"[{str(size)}]", ret_val.__str__()))
                     return ret_val
+                
                 ins.append(Call(func_name, str(vars), ret_val.__str__()))
                 return ret_val
                                 
@@ -280,4 +280,6 @@ def generate_ir(root_expr: Expression, params: list[str] = None) -> list[Instruc
             i=i+1
     visit(root_expr)
     
+    # do variable optimization
+    #ins = eliminate_undefined_vars_in_load_insts(ins)
     return ins

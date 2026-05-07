@@ -26,6 +26,41 @@ def trim_string(string: str) -> str:
 
     return string.replace("\t", "").replace(" ", "")
 
+def eliminate_undefined_vars_in_load_insts(insts: list[Instruction]) -> list[Instruction]:
+    """ 
+    This is ir level optimize. Without this we reserve one unused ir var in
+    case of value load.
+
+    E.g.
+    We never use x4
+    	LoadIntConst(0, x4)
+		Copy(x4, t10mp)
+
+    Insted we use t10mp.
+
+    So we can simplify to
+        LoadIntConst(0, t10mp)
+    """
+
+    new_insts = []
+
+    i=0
+    while i < len(insts):
+        inst = insts[i]
+        if isinstance(inst, LoadIntConst):
+            if isinstance(insts[i+1], Copy):
+                if inst.dest == inst[i+1].value:
+                    src = inst.value
+                    dest = insts[i+1].dest
+                    new_insts.append(LoadIntConst(src, dest))
+                    i=i+2
+                    continue
+        new_insts.append(inst)
+        i=i+1
+
+    return new_insts
+   
+
 def detect_irrelevat_reg_mem_operation(line1: str, line2: str) -> str:
     line1 = trim_string(line1)
     line2 = trim_string(line2)
