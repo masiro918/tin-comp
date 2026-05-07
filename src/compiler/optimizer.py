@@ -49,7 +49,7 @@ def eliminate_undefined_vars_in_load_insts(insts: list[Instruction]) -> list[Ins
         inst = insts[i]
         if isinstance(inst, LoadIntConst):
             if isinstance(insts[i+1], Copy):
-                if inst.dest == inst[i+1].value:
+                if inst.dest == insts[i+1].value:
                     src = inst.value
                     dest = insts[i+1].dest
                     new_insts.append(LoadIntConst(src, dest))

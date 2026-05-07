@@ -281,5 +281,5 @@ def generate_ir(root_expr: Expression, params: list[str] = None) -> list[Instruc
     visit(root_expr)
     
     # do variable optimization
-    #ins = eliminate_undefined_vars_in_load_insts(ins)
+    ins = eliminate_undefined_vars_in_load_insts(ins)
     return ins
