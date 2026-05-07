@@ -54,10 +54,12 @@ def clean_nop(lines: list[str]) -> str:
         new_lines.append(line)
     return '\n'.join(new_lines)
 
-def detect_unused_stack_mem_allocations():
+def detect_unused_stack_mem_allocations(lines: list[str]) -> list[str]:
     """ 
     If there are unnecessary memory allocations, e.g. the compiler want to 
     allocate -64(%rbp), but -64(%rbp) is never used, this detects those.
+
+    Return the uneccessary memory allocations (e.g. -16(%rbp))
     """
 
     pass
