@@ -26,6 +26,13 @@ def trim_string(string: str) -> str:
 
     return string.replace("\t", "").replace(" ", "")
 
+def occurences(var: str, insts: list[Instruction]) -> int:
+    count = 0
+    for inst in insts:
+        if var in inst.__str__():
+            count += 1
+    return count
+
 def eliminate_double_copy_operations(insts: list[Instruction]) -> list[Instruction]:
     """
     
@@ -38,7 +45,23 @@ def eliminate_double_copy_operations(insts: list[Instruction]) -> list[Instructi
 
         Copy(t1mp, t12mp)
     """
-    return insts
+    new_insts = []
+
+    i=0
+    while i < len(insts):
+        inst = insts[i]
+        if isinstance(inst, Copy):
+            if isinstance(insts[i+1], Copy):
+                if inst.dest == insts[i+1].value and occurences(inst.dest, insts) <= 2:
+                    src = inst.value
+                    dest = insts[i+1].dest
+                    new_insts.append(Copy(src, dest))
+                    i=i+2
+                    continue
+        new_insts.append(inst)
+        i=i+1
+
+    return new_insts
 
 def eliminate_undefined_vars_in_load_insts(insts: list[Instruction]) -> list[Instruction]:
     """ 

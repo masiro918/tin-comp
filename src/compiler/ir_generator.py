@@ -285,5 +285,5 @@ def generate_ir(root_expr: Expression, params: list[str] = None) -> list[Instruc
     
     # optimizations
     ins = eliminate_undefined_vars_in_load_insts(ins)
-    #ins = eliminate_double_copy_operations(ins)
+    ins = eliminate_double_copy_operations(ins)
     return ins
