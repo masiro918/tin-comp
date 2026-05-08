@@ -27,6 +27,8 @@ def trim_string(string: str) -> str:
     return string.replace("\t", "").replace(" ", "")
 
 def occurences(var: str, insts: list[Instruction]) -> int:
+    """ Searches how many ir var occurrences in the ir code """
+
     count = 0
     for inst in insts:
         if var in inst.__str__():
@@ -35,16 +37,15 @@ def occurences(var: str, insts: list[Instruction]) -> int:
 
 def eliminate_double_copy_operations(insts: list[Instruction]) -> list[Instruction]:
     """
-    
-    TODO:
+    Optimizes this:
 
     Copy(t1mp, x5)
     Copy(x5, t12mp)
 
-    -> jos x5 EI OLE KÄYTÖSSÄ MISSÄÄN MUUALLA, tee
-
+    -> if x5 if not in use in the code:
         Copy(t1mp, t12mp)
     """
+    
     new_insts = []
 
     i=0
