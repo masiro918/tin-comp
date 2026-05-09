@@ -1,12 +1,14 @@
 ***Attention! This documentation is still very much in progress.***
 -----------------------------------------
-# Technical Solutions and Overview
+# 1. Common Technical Solutions and Overview
 
 Programming language structures are hierarchical. The diagram below shows that a structure can contain structures with an arrow pointing away from them. For example, a VariableAssign can contain an Expression, which covers mathematical expressions, constants, variables, and function calls. However, a VariableAssign cannot contain an if-statement or a context start or end (=block). On the other hand, an if-statement can (and must) contain a binary operation and an expression. An Expression is the most complex of the structures. Its structures can be recursive, meaning they can repeat themselves. For example 
 
-``` f(f(f(x + f(x))))) - 2 / g(f(g(x)))) ```
+```
+f(f(f(x + f(x))))) - 2 / g(f(g(x))))
+```
 
-## Tokenizing and Parsing
+## 1.1. Tokenizing and Parsing
 
 - first we extract functions and handle them as such
   - add information about line numbers to tokens
@@ -19,20 +21,21 @@ Programming language structures are hierarchical. The diagram below shows that a
 
 - The parser is recursive descent parser. Please read the Wikipedia artcile of the parser type if necessary [https://en.wikipedia.org/wiki/Recursive_descent_parser]. The parser runs through the tokens and looks one or two tokens that the index pointer indicates. The parser interprets the coming expression in the token list by the tokens and creates the abstract syntax tree.
 
-## Types and Type Checking
+## 1.2. Types and Type Checking
 
 - compiler checks types of comparing operands, nothing else
   - **only compare operations and variable declarations are type checked** , not function parameters
 
 
-## IR Generation
+## 1.3. IR Generation
 
  - If the subprogram being processed uses parameters, we add the parameters into IR by using the IR copy statement
 - Checks that variable declarations and assignments are correct
   - this is used by stack data structure -> when a new context is defined, we create a new "context" into the stack and also previous context are available, but if the current context is ending, we pop the latex context from the stack and the variables declared inside the latest context is not available anymore
   - also checks that code does not consists illegal variable names
+  - optimization (Chapter 2)
 
-## Assembly Generation
+## 1.4. Assembly Generation
 
 - What are the instructions that the compilers uses?
 - No optimizing
@@ -48,9 +51,47 @@ Programming language structures are hierarchical. The diagram below shows that a
   - user-defined functions are fully "subprograms": the language (and compiler) does not support global variables so there is only a one way to share information between functions: function parameters
   - the compiler handles functions separately on by one throw the compilation pipeline and returns compiled assembly code, statements there don't below any functions are interpreted as "main" function where the execution starts. Finally the compiler constructs the program by compiled functions
 
+# 2. Optimization
 
+The optimization feature in the compiler aims to reduce memory allocation from main memory (base pointer based). Optimization is performed after the first IR output. That is, the IR code is edited to be more efficient. When the IR code is simplified, the assembly produced from the IR is also correspondingly more efficient.
 
-## Testing
+## 2.1 Dead Code Elimination
+
+After the IR code has been produced, dead code elimination is applied to it. For example, in the following
+
+    LoadIntConst(0, x4)
+    Copy(x4, t10mp)
+
+`x4` can be replaced directly with the value `0`, making `LoadIntConst` unnecessary and allowing it to be eliminated, when it is known that `x4` **is not used anywhere else**.
+
+Thus the example is reduced to
+
+    LoadIntConst(0, t10mp)
+
+## 2.2 Copy Propagation
+
+Copy propagation is also applied to the IR code. Here, unnecessary and redundant `Copy` instructions are removed from the IR code. For example,
+
+    Copy(t1mp, x5)
+    Copy(x5, t12mp)
+
+it can be observed that the variable `x5` is unnecessary, because the `Copy` operation can be performed directly between the variables `t1mp` and `t12mp`. Thus, the optimized version is
+
+    Copy(t1mp, t12mp)
+
+## 2.3 Register Allocation
+
+Typically, register allocation is not considered optimization per se, although efficient register allocation methods do make assembly code faster (i.e., more efficient). Since registers are known to be the fastest accessible memory area in the memory hierarchy, they should be preferred. Next come the processor caches, and only after that main memory. Thinking in terms of relative speeds, main memory is *very far* from the registers located close to the processor. Therefore, using registers is highly advisable.
+
+Unfortunately, the AMD64 System V 64-bit Calling Convention does not provide very many freely usable registers. These are r10–r15, although r10 and r11 have small but clear issues associated with their use. For this reason, this compiler does not take advantage of them.
+
+In short, register allocation works so that variables involved in comparisons within loops are converted from memory to registers whenever possible. The loop iteration variable changes its value frequently and densely, so in these cases using a register instead of memory can be a more efficient choice: there is no need to fetch the iteration variable’s value from distant main memory each time. The compiler may not always identify the correct iteration variable with 100% certainty, but the optimization will (hopefully) improve in the future.
+
+Another significant note is that at the beginning of each function, the values of r12–r15 must be saved onto the stack; otherwise, they would be overwritten during the function’s execution. These values are restored when exiting the function.
+
+The compiler violates compiler construction principles to such an extent that this register allocation is performed already during IR generation (in the file `ir_generator.py`) and is designed specifically for the AMD64 platform. IR is supposed to be platform-independent, but at this point that principle is flagrantly broken.
+
+## 3. Testing
 
 * CI pipeline
 * coverage
