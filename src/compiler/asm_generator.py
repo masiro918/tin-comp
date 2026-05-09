@@ -254,15 +254,16 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
     insts_as_str = []
     for inst in ir_instructions:
         if isinstance(inst, LoadIntConst) or isinstance(inst, LoadBoolConst):
-            if re.match("^r[12345]{2}$", inst.dest):
-                continue
-            if inst.dest[0] != "x":
-                inst.dest = "x" + inst.dest
-            if len(inst.dest) < 3:
-                inst.dest = inst.dest + "_"
+            if inst.dest == "r12" or inst.dest == "r13":
+                pass
+            else:
+                if inst.dest[0] != "x":
+                    inst.dest = "x" + inst.dest
+                if len(inst.dest) < 3:
+                    inst.dest = inst.dest + "_"
         if isinstance(inst, Copy):
             if inst.dest[0] != "x":
-                if re.match("^r[12345]{2}$", inst.dest):
+                if inst.dest == "r12" or inst.dest == "r13":
                     pass
                 else:
                     inst.dest = "x" + inst.dest
@@ -270,8 +271,12 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
                 global ptr_param_reg
                 inst.value = param_regs[ptr_param_reg]
                 ptr_param_reg += 1
-            else:
-                if inst.value[0] != "x":
+                insts_as_str.append(inst.__str__())
+                continue
+            if inst.value[0] != "x":
+                if inst.value == "r12" or inst.value == "r13":
+                    pass
+                else:
                     inst.value = "x" + inst.value
             if len(inst.dest) < 3:
                 inst.dest = inst.dest + "_"

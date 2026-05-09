@@ -54,8 +54,8 @@ def compile_module(module: SubProgram, startpoint, is_main_fun = False) -> str:
     typecheck(ast)
     ir = generate_ir(ast, module.params)
     
-    #print("====================")
-    #for inst in ir: print(inst)
+    print("====================")
+    for inst in ir: print(inst)
     
 
     if is_main_fun == False:
