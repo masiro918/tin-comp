@@ -62,13 +62,17 @@ def rename_irvar(var_name: str, new_varname: str, insts: list[Instruction]) -> l
 def put_registers(insts: list[Instruction]) -> list[Instruction]:
     """ Replace bp based memory locations by r12-15 registers """
 
-    count = 0
     while_label_detected = False
-    for inst in insts:
+    
+    count = 0
+    i = 0
+    while i < len(insts):
+        inst = insts[i]
         if count < 1:
             if re.match("^(L){1}[0-9]+(\_WHILE\_START){1}$", inst.__str__()):
                 while_label_detected = True
                 count += 1
+                i += 1
                 continue
         elif while_label_detected == True:
             if "Call(" in inst.__str__():
@@ -78,12 +82,35 @@ def put_registers(insts: list[Instruction]) -> list[Instruction]:
                 new_insts = rename_irvar(vars[0], "r12", insts)
 
                 if len(vars) > 1:
-                    new_insts = rename_irvar(vars[1], "r13", new_insts)
-                return new_insts
-        else:
-            pass
+                    insts = rename_irvar(vars[1], "r13", new_insts)
+                break
+        i += 1
 
+    while_label_detected = False
+    count = 0
+
+    while i < len(insts):
+        inst = insts[i]
+        if count < 1:
+            if re.match("^(L){1}[0-9]+(\_WHILE\_START){1}$", inst.__str__()):
+                while_label_detected = True
+                count += 1
+                i += 1
+                continue
+        elif while_label_detected == True:
+            if "Call(" in inst.__str__():
+                ins = inst.__str__()
+                vars = ins.split("[")[1].split("]")[0]
+                vars = vars.split(", ")
+                new_insts = rename_irvar(vars[0], "r14", insts)
+
+                if len(vars) > 1:
+                    new_insts = rename_irvar(vars[1], "r15", new_insts)
+                return new_insts
+        i += 1
     return insts
+
+    
 
 def trim_string(string: str) -> str:
     """ Cleans all the whitespaces, tabs ... """
@@ -100,15 +127,7 @@ def occurences(var: str, insts: list[Instruction]) -> int:
     return count
 
 def eliminate_double_copy_operations(insts: list[Instruction]) -> list[Instruction]:
-    """
-    Optimizes this:
-
-    Copy(t1mp, x5)
-    Copy(x5, t12mp)
-
-    -> if x5 if not in use in the code:
-        Copy(t1mp, t12mp)
-    """
+    """ Copy propagation. """
     
     new_insts = []
 
@@ -132,16 +151,6 @@ def eliminate_undefined_vars_in_load_insts(insts: list[Instruction]) -> list[Ins
     """ 
     This is ir level optimize. Without this we reserve one unused ir var in
     case of value load.
-
-    E.g.
-    We never use x4
-    	LoadIntConst(0, x4)
-		Copy(x4, t10mp)
-
-    Insted we use t10mp.
-
-    So we can simplify to
-        LoadIntConst(0, t10mp)
     """
 
     new_insts = []
