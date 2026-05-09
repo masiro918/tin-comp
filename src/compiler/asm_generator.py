@@ -209,6 +209,9 @@ def translate_to_asm(ir: list[str]) -> str:
             value = inst.replace("Ret(", "")[:-1]
             value = value.strip()
 
+            asm = asm + f"\tmovq -1000(%rbp), %r12\n"
+            asm = asm + f"\tmovq -1008(%rbp), %r13\n"
+
             asm += f"\tmovq {value}, %rax\n"
             asm += f"\tmovq %rbp, %rsp\n\tpopq %rbp\n\tret\n"
             continue
@@ -251,13 +254,18 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
     insts_as_str = []
     for inst in ir_instructions:
         if isinstance(inst, LoadIntConst) or isinstance(inst, LoadBoolConst):
+            if re.match("^r[12345]{2}$", inst.dest):
+                continue
             if inst.dest[0] != "x":
                 inst.dest = "x" + inst.dest
             if len(inst.dest) < 3:
                 inst.dest = inst.dest + "_"
         if isinstance(inst, Copy):
             if inst.dest[0] != "x":
-                inst.dest = "x" + inst.dest
+                if re.match("^r[12345]{2}$", inst.dest):
+                    pass
+                else:
+                    inst.dest = "x" + inst.dest
             if inst.value[0:3] == "arg":
                 global ptr_param_reg
                 inst.value = param_regs[ptr_param_reg]
@@ -286,7 +294,7 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
                 inst.args = new_args
 
         if isinstance(inst, CondJump):
-            if inst.cond != None and "x" in inst.cond.__str__():
+            if (inst.cond != None and "x" in inst.cond.__str__()):
                 if len(inst.cond.__str__()) < 3:
                     inst.cond = Label(inst.cond.__str__() + "_") 
 
@@ -297,11 +305,17 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
     for inst in insts_as_str:
         if re.match(r"^(LoadIntConst).{0,}", inst):
             var = inst.split(", ")[1].replace(")", "")
+            if var == "r12" or var == "r13" or var == "r14" or var == "r15":
+                variables[f"{var}"] = f"%{var}"
+                continue
             variables[f"{var}"] = f"{ptr_top_of_the_stack}(%rbp)"
             ptr_top_of_the_stack -= 8
             continue
         if re.match(r"^(LoadBoolConst).{0,}", inst):
             var = inst.split(", ")[1].replace(")", "")
+            if var == "r12" or var == "r13" or var == "r14" or var == "r15":
+                variables[f"{var}"] = f"%{var}"
+                continue
             variables[f"{var}"] = f"{ptr_top_of_the_stack}(%rbp)"
             ptr_top_of_the_stack -= 8
             continue
@@ -313,12 +327,18 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
                 pass
             else:
                 if exists(variables, var1) == False:
-                    variables["" + var1] = f"{ptr_top_of_the_stack}(%rbp)"
-                    ptr_top_of_the_stack -= 8
+                    if var1 == "r12" or var1 == "r13" or var1 == "r14" or var1 == "r15":
+                        variables[f"{var1}"] = f"%{var1}"
+                    else:
+                        variables["" + var1] = f"{ptr_top_of_the_stack}(%rbp)"
+                        ptr_top_of_the_stack -= 8
 
             if exists(variables, var2) == False:
-                variables["" + var2] = f"{ptr_top_of_the_stack}(%rbp)"
-                ptr_top_of_the_stack -= 8
+                if var2 == "r12" or var2 == "r13" or var2 == "r14" or var2 == "r15":
+                    variables[f"{var2}"] = f"%{var2}"
+                else:
+                    variables["" + var2] = f"{ptr_top_of_the_stack}(%rbp)"
+                    ptr_top_of_the_stack -= 8
             continue
         if re.match(r"(CondJump).{0,}", inst):
             var_bool = inst.split("CondJump(")[1].split(", ")[0]
@@ -350,8 +370,11 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
 
                 for param in params:
                     if exists(variables, param) == False:
-                        variables["" + param] = f"{ptr_top_of_the_stack}(%rbp)"
-                        ptr_top_of_the_stack -= 8
+                        if param == "r12" or param == "r13" or var1 == "r14" or var1 == "r15":
+                            variables[f"{param}"] = f"%{param}"
+                        else:
+                            variables["" + param] = f"{ptr_top_of_the_stack}(%rbp)"
+                            ptr_top_of_the_stack -= 8
 
             continue
 
@@ -364,12 +387,19 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
 \tmovq %rsp, %rbp
 \tsubq $1024, %rsp
 """
+    asm_lines = asm_lines + f"\tmovq %r12, -1000(%rbp)\n"
+    asm_lines = asm_lines + f"\tmovq %r13, -1008(%rbp)\n"
     
     # do translate from ir to x86-64 assembly
+    lines = variable_rename(insts_as_str)
+    for l in lines: print(l)
     asm_lines = asm_lines + translate_to_asm(variable_rename(insts_as_str))
 
     # add double dots
     asm_lines = add_double_dots(asm_lines)
+
+    asm_lines = asm_lines + f"\tmovq -1000(%rbp), %r12\n"
+    asm_lines = asm_lines + f"\tmovq -1008(%rbp), %r13\n"
 
     asm_lines = asm_lines + """\tmovq $0, %rax
 \tmovq %rbp, %rsp

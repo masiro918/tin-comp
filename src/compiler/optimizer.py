@@ -21,6 +21,68 @@ sys.path.append('../')
 from src.structs.ir import *
 from src.compiler.compiler_exception import CompilerException
 
+def replace_if_match(string: str, old: str, new: str) -> str:
+    pattern = rf"\b{re.escape(old)}\b"
+    return re.sub(pattern, new, string)
+        
+
+def rename_irvar(var_name: str, new_varname: str, insts: list[Instruction]) -> list[Instruction]:
+    new_insts = []
+
+    for inst in insts:
+        if isinstance(inst, Copy):
+            inst.dest = replace_if_match(inst.dest, var_name, new_varname)
+            inst.value = replace_if_match(inst.value, var_name, new_varname)
+            new_insts.append(inst)
+            continue
+        if isinstance(inst, Call):
+            if isinstance(inst.args, str):
+                inst.args = replace_if_match(inst.args, var_name, new_varname)
+                new_insts.append(inst)
+                continue
+            new_insts.append(inst)
+            continue
+        if isinstance(inst, LoadIntConst):
+            inst.dest = replace_if_match(inst.dest, var_name, new_varname)
+            new_insts.append(inst)
+            continue
+        if isinstance(inst, LoadBoolConst):
+            inst.dest = replace_if_match(inst.dest, var_name, new_varname)
+            new_insts.append(inst)
+            continue
+        if isinstance(inst, CondJump):
+            if type(inst.cond) != 'str':
+                inst.cond = inst.cond.__str__()
+            inst.cond = replace_if_match(inst.cond, var_name, new_varname)
+            new_insts.append(inst)
+            continue
+        new_insts.append(inst)
+    return new_insts
+
+def put_registers(insts: list[Instruction]) -> list[Instruction]:
+    """ Replace bp based memory locations by r12-15 registers """
+
+    count = 0
+    while_label_detected = False
+    for inst in insts:
+        if count < 1:
+            if re.match("^(L){1}[0-9]+(\_WHILE\_START){1}$", inst.__str__()):
+                while_label_detected = True
+                count += 1
+                continue
+        elif while_label_detected == True:
+            if "Call(" in inst.__str__():
+                ins = inst.__str__()
+                vars = ins.split("[")[1].split("]")[0]
+                var1, var2 = vars.split(", ")
+                new_insts = rename_irvar(var1, "r12", insts)
+                new_insts = rename_irvar(var2, "r13", new_insts)
+                return new_insts
+        else:
+            pass
+
+    return insts
+
 def trim_string(string: str) -> str:
     """ Cleans all the whitespaces, tabs ... """
 

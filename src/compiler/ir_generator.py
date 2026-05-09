@@ -22,7 +22,8 @@ from src.compiler.compiler_exception import CompilerException
 from src.compiler.misc import var_names
 from src.compiler.optimizer import (
     eliminate_undefined_vars_in_load_insts,
-    eliminate_double_copy_operations
+    eliminate_double_copy_operations,
+    put_registers
 )
 
 from src.structs._ast import (
@@ -286,4 +287,5 @@ def generate_ir(root_expr: Expression, params: list[str] = None) -> list[Instruc
     # optimizations
     ins = eliminate_undefined_vars_in_load_insts(ins)
     ins = eliminate_double_copy_operations(ins)
+    ins = put_registers(ins)
     return ins
