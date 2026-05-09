@@ -74,9 +74,11 @@ def put_registers(insts: list[Instruction]) -> list[Instruction]:
             if "Call(" in inst.__str__():
                 ins = inst.__str__()
                 vars = ins.split("[")[1].split("]")[0]
-                var1, var2 = vars.split(", ")
-                new_insts = rename_irvar(var1, "r12", insts)
-                new_insts = rename_irvar(var2, "r13", new_insts)
+                vars = vars.split(", ")
+                new_insts = rename_irvar(vars[0], "r12", insts)
+
+                if len(vars) > 1:
+                    new_insts = rename_irvar(vars[1], "r13", new_insts)
                 return new_insts
         else:
             pass

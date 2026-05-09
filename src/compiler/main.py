@@ -53,10 +53,6 @@ def compile_module(module: SubProgram, startpoint, is_main_fun = False) -> str:
     
     typecheck(ast)
     ir = generate_ir(ast, module.params)
-    
-    print("====================")
-    for inst in ir: print(inst)
-    
 
     if is_main_fun == False:
         global userdefined_functions
@@ -129,5 +125,5 @@ if __name__ == '__main__':
         print("Internal error!")
 
         #TODO: before merge, remove this!!!
-        raise Exception(e)
+        #raise Exception(e)
         sys.exit(1)

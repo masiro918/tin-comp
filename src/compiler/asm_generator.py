@@ -271,13 +271,13 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
                 global ptr_param_reg
                 inst.value = param_regs[ptr_param_reg]
                 ptr_param_reg += 1
-                insts_as_str.append(inst.__str__())
-                continue
-            if inst.value[0] != "x":
-                if inst.value == "r12" or inst.value == "r13":
-                    pass
-                else:
-                    inst.value = "x" + inst.value
+            else:
+                if inst.value[0] != "x":
+                    if inst.value == "r12" or inst.value == "r13":
+                        insts_as_str.append(inst.__str__())
+                        continue
+                    else:
+                        inst.value = "x" + inst.value
             if len(inst.dest) < 3:
                 inst.dest = inst.dest + "_"
             if len(inst.value) < 3:
@@ -396,8 +396,6 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
     asm_lines = asm_lines + f"\tmovq %r13, -1008(%rbp)\n"
     
     # do translate from ir to x86-64 assembly
-    lines = variable_rename(insts_as_str)
-    for l in lines: print(l)
     asm_lines = asm_lines + translate_to_asm(variable_rename(insts_as_str))
 
     # add double dots
