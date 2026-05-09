@@ -392,8 +392,10 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
 \tmovq %rsp, %rbp
 \tsubq $1024, %rsp
 """
-    asm_lines = asm_lines + f"\tmovq %r12, -1000(%rbp)\n"
-    asm_lines = asm_lines + f"\tmovq %r13, -1008(%rbp)\n"
+    
+    if module_name != "main":
+        asm_lines = asm_lines + f"\tmovq %r12, -1000(%rbp)\n"
+        asm_lines = asm_lines + f"\tmovq %r13, -1008(%rbp)\n"
     
     # do translate from ir to x86-64 assembly
     asm_lines = asm_lines + translate_to_asm(variable_rename(insts_as_str))
@@ -401,8 +403,9 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
     # add double dots
     asm_lines = add_double_dots(asm_lines)
 
-    asm_lines = asm_lines + f"\tmovq -1000(%rbp), %r12\n"
-    asm_lines = asm_lines + f"\tmovq -1008(%rbp), %r13\n"
+    if module_name != "main":
+        asm_lines = asm_lines + f"\tmovq -1000(%rbp), %r12\n"
+        asm_lines = asm_lines + f"\tmovq -1008(%rbp), %r13\n"
 
     asm_lines = asm_lines + """\tmovq $0, %rax
 \tmovq %rbp, %rsp
