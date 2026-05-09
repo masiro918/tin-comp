@@ -123,7 +123,4 @@ if __name__ == '__main__':
         sys.exit(1)
     except Exception as e:
         print("Internal error!")
-
-        #TODO: before merge, remove this!!!
-        #raise Exception(e)
         sys.exit(1)

@@ -191,18 +191,8 @@ def clean_nop(lines: list[str]) -> str:
         new_lines.append(line)
     return '\n'.join(new_lines)
 
-def detect_unused_stack_mem_allocations(lines: list[str]) -> list[str]:
-    """ 
-    If there are unnecessary memory allocations, e.g. the compiler want to 
-    allocate -64(%rbp), but -64(%rbp) is never used, this detects those.
-
-    Return the uneccessary memory allocations (e.g. -16(%rbp))
-    """
-
-    pass
-
 def do_optimize(asm_code: str) -> str:
-    """ Optimzes the assembly code. """
+    """ Replace irrelevat memory operations by nop. """
 
     new_lines = []
     lines = asm_code.split("\n")
@@ -216,6 +206,5 @@ def do_optimize(asm_code: str) -> str:
                 lines[i+1] = "\tnop"
 
         new_lines.append(line)
-
 
     return clean_nop(new_lines)
