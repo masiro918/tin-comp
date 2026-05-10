@@ -7,6 +7,7 @@ __pycache__
 htmlcov
 *.src
 a.s
+a.ir
 
 make_prod_build.sh
 

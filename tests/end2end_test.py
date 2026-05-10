@@ -810,3 +810,11 @@ def test_case70():
         assert True == False
     except Exception as e:
         assert "you cannot redeclarate variable a" in str(e)
+
+def test_case71():
+    main("test_programs/example27.txt", "a.out", "../src/")
+    run_program()
+
+    assert read_output() == """-403439616
+"""
+    

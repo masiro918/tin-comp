@@ -178,29 +178,62 @@ def typecheck(node: Expression) -> Type:
             return Type('Unit')
             
         case 'FunctionCall':
-            if node.func_name == "print_int": return Type('Unit')
-            if node.func_name == "print_bool": return Type('Unit')
-            if node.func_name == "print_str": return Type('Unit')
-            if node.func_name == "print_str2": return Type('Unit')
+            if node.func_name == "print_int": 
+                node.func_type = 'Unit'
+                return Type('Unit')
+            if node.func_name == "print_bool": 
+                node.func_type = 'Unit'
+                return Type('Unit')
+            if node.func_name == "print_str": 
+                node.func_type = 'Unit'
+                return Type('Unit')
+            if node.func_name == "print_str2": 
+                node.func_type = 'Unit'
+                return Type('Unit')
             
-            if node.func_name == "str_cat": return Type('String')
-            if node.func_name == "str_cmp": return Type('Bool')
-            if node.func_name == "str_len": return Type('Int')
-            if node.func_name == "str_to_int": return Type('Int')
-            if node.func_name == "int_to_str": return Type('String')
-            if node.func_name == "get_char_from_str": return Type('String')
-            if node.func_name == "input_str": return Type('String')
-            if node.func_name == "create_empty_str": return Type('String')
+            if node.func_name == "str_cat": 
+                node.func_type = 'String'
+                return Type('String')
+            if node.func_name == "str_cmp": 
+                node.func_type = 'Bool'
+                return Type('Bool')
+            if node.func_name == "str_len": 
+                node.func_type = 'Int'
+                return Type('Int')
+            if node.func_name == "str_to_int": 
+                node.func_type = 'Int'
+                return Type('Int')
+            if node.func_name == "int_to_str": 
+                node.func_type = 'String'
+                return Type('String')
+            if node.func_name == "get_char_from_str":
+                node.func_type = 'String' 
+                return Type('String')
+            if node.func_name == "input_str": 
+                node.func_type = 'String'
+                return Type('String')
+            if node.func_name == "create_empty_str": 
+                node.func_type = 'String'
+                return Type('String')
             
-            if node.func_name == "pow2": return Type('Int')
+            if node.func_name == "pow2": 
+                node.func_type = 'Int'
+                return Type('Int')
 
-            if node.func_name == "set": return Type('Unit')
-            if node.func_name == "get": return Type('Int')
-            if node.func_name == "array": return Type('Unit')
+            if node.func_name == "set": 
+                node.func_type = 'Unit'
+                return Type('Unit')
+            if node.func_name == "get": 
+                node.func_type = 'Int'
+                return Type('Int')
+            if node.func_name == "array": 
+                node.func_type = 'Int'
+                return Type('Int')
 
             global userdefined_functions
             for fun in userdefined_functions:
                 if node.func_name == fun[0]:
+                    node.func_type = fun[1]
                     return Type(fun[1])
             
             # a special case, not a 'real' function call

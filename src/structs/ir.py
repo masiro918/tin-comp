@@ -122,7 +122,9 @@ class Call(Instruction):
 
     def __str__(self):
         args = str(self.args).replace('\'', '')
-        if self.dest == None: raise CompilerException("IR generation error: dest cannot be undefined")
+        if self.dest == None:
+            return f"Call({self.fun}, {args}, None)"
+            #raise CompilerException("IR generation error: dest cannot be undefined")
         return f"Call({self.fun}, {args}, {self.dest})"
 
 class Jump(Instruction):
