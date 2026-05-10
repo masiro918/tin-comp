@@ -180,7 +180,6 @@ class Parser():
                     consume(";")
                     continue
                 else:
-                    
                     if peek().text == "}":
                         continue
                     

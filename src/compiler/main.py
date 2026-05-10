@@ -123,5 +123,4 @@ if __name__ == '__main__':
         sys.exit(1)
     except Exception as e:
         print("Internal error!")
-        raise e
         sys.exit(1)
