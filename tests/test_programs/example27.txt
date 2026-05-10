@@ -1,0 +1,45 @@
+fun sum_arrays(a, b, n): Int {
+    var sum = 0;
+
+	var i = 0; 
+    while i < n do {
+        //sum += a[i] + b[i];
+        sum = sum + (get(a, i) + get(b, i));
+        i = i + 1;
+    }
+
+    return sum;
+}
+
+fun _main() {
+	var arr1 = array(512);
+	var arr2 = array(512);
+	
+	// fill the array
+	var i = 0;
+	while i < 512 do {
+		set(arr1, i, i);
+		set(arr2, i, i+(i*4));
+		i = i + 1;
+	}
+	
+	i=0;
+	
+	var sum = 0;
+	var total = 0;
+	var j = 0;
+	while j < 1024 do {
+		while i < 512 do {
+			sum = sum + (get(arr1, i) + get(arr2, i));
+			i = i + 1;
+		}
+		i = 0;
+		total = total + sum;
+		total = total + j * i;
+		j = j + 1;
+	}
+	
+	print_int(total);
+}
+
+_main();

@@ -40,8 +40,6 @@ def rename_irvar(var_name: str, new_varname: str, insts: list[Instruction]) -> l
                 inst.args = replace_if_match(inst.args, var_name, new_varname)
                 new_insts.append(inst)
                 continue
-            new_insts.append(inst)
-            continue
         if isinstance(inst, LoadIntConst):
             inst.dest = replace_if_match(inst.dest, var_name, new_varname)
             new_insts.append(inst)
