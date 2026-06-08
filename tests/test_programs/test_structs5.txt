@@ -1,0 +1,54 @@
+fun get_presidents_country_name(president): Str {
+    return get(get(president, Presidentti->valtio), Valtio->nimi);
+}
+
+fun get_presidents_country_population_count(president): Int {
+	return get(get(president, Presidentti->valtio), Valtio->asukkaiden_lkm);
+}
+
+fun print_president_information(president) {
+	var valtio_nimi = get_presidents_country_name(president);
+	var valtio_asukkaita = get_presidents_country_population_count(president);
+	print_str2(valtio_nimi); print_str2(" asukkaita "); print_int(valtio_asukkaita);
+}
+
+
+define struct Valtio = { nimi, asukkaiden_lkm };
+define struct Presidentti = { valtio, nimi, syntymavuosi };
+
+var presidents = array(2);
+
+var suomi = New(Valtio);
+var usa = New(Valtio);
+
+set(suomi, Valtio->asukkaiden_lkm, 5500000);
+set(suomi, Valtio->nimi, "Suomi");
+set(usa, Valtio->asukkaiden_lkm, 331449281);
+set(usa, Valtio->nimi, "Amerikan yhdysvallat");
+
+var stubb = New(Presidentti);
+var trump = New(Presidentti);
+
+set(stubb, Presidentti->valtio, suomi);
+set(stubb, Presidentti->nimi, "Stubb");
+set(stubb, Presidentti->syntymavuosi, 1968);
+
+set(presidents, 0, stubb);
+
+set(trump, Presidentti->valtio, usa);
+set(trump, Presidentti->nimi, "Trump");
+set(trump, Presidentti->syntymavuosi, 1946);
+
+set(presidents, 1, trump);
+
+var i = 0; while i < 2 do {	
+	var president = get(presidents, i);
+	print_president_information(president);
+	
+	if (get(president, Presidentti->syntymavuosi) == 1968) or (get(president, Presidentti->syntymavuosi) == 1946)
+	then {
+		print_str2(str_cat("Presidentin ", get(president, Presidentti->nimi)));
+		print_str2(str_cat(" syntymävuosi on ", int_to_str(get(president, Presidentti->syntymavuosi))));
+		print_str(" ");
+	}
+i = i + 1;}

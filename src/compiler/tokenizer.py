@@ -21,12 +21,70 @@ sys.path.append("../")
 
 from src.compiler.compiler_exception import CompilerException
 
+from src.compiler.globls import custom_types
+
 from src.structs._ast import Token
 
 class Tokenizer():
 
-    def __init__(self, source_code: str = None):
+    def __init__(self, source_code: str | None = None):
         self.source_code = source_code
+        self.structs = []
+        
+    def replace_sturcts_and_news(self, source_code: str) -> str:
+        lines = source_code.split("\n")
+        new_lines = []        
+
+        for line in lines:
+            line = line.strip()
+            # syntax: define sturct [var_name] = { field_1, ... , field_N }
+            if line.startswith("define") and "struct" in line:
+                struct = line.split(" ")[2:]
+                struct = ' '.join(struct)
+                self.structs.append(struct)
+                line = "// " + line
+            new_lines.append(line)
+        
+        lines = new_lines
+        new_lines = []
+        for line in lines:
+            if "New" in line and "(" in line and ")" in line and line.strip()[-1] == ";":
+                line = line.replace("New(", "")
+                line = line.replace(")", "")
+                line = line.replace(";", "")
+
+                desuraing_line = line + ";"
+                
+                struct_type = line.split("=")[1].strip()
+
+                found = False
+                _struct = ""
+                struct_def = ""
+                if len(self.structs) > 0:
+                    for struct in self.structs:
+                        if struct_type in struct:
+                            _struct = struct_type
+                            struct_def = struct
+                            found = True
+                    if found == False:
+                        raise Exception("Unknown type " + struct_type)
+                    line = line.split("=")[0]
+                    line = line + f"= {_struct};"
+                    s = struct_def.strip().replace(" ", "")
+                    name = s.split("={")[0]
+                    s = s.split("={")[1].split("};")[0]
+                    fields = s.split(",")
+                    
+                    struct = { 'name' : name, 'fields' : fields }
+                    
+                    global custom_types
+                    custom_types.append(struct)
+                else: continue
+
+            new_lines.append(line)
+        
+        source_code = '\n'.join(new_lines)
+        return source_code
 
     def clean_comments(self, source_code: str) -> str:
         """ Cleans single line comments. """
@@ -48,15 +106,17 @@ class Tokenizer():
         for line in new_lines: ret_str += f"{line.strip()}"
         return ret_str
     
-    def tokenize(self, source_code: str = None) -> list[str]:
+    def tokenize(self, source_code: str | None = None) -> list[str]:
         """ Casts source code into tokens as string objects """
 
         # desugars
+        source_code = self.replace_sturcts_and_news(source_code)
         source_code = self.clean_comments(source_code)
 
         # Replace whitespaces and tab spaces
-        source_code = source_code.replace("\t", " ")       
+        source_code = source_code.replace("\t", " ")     
         source_code = source_code.replace(" ", "|")
+        source_code = source_code.replace("->", "^^")
         source_code = source_code.strip()
 
         tmp_tokens = []
@@ -104,7 +164,14 @@ class Tokenizer():
         if len(long_token) > 0:
             tmp_tokens.append(long_token)
         tokens = []
-        for t in tmp_tokens:
+        for t in tmp_tokens:            
+            if "^^" in t:
+                t = t.replace("|", "")
+                tkns = t.split("^^")
+                tokens.append(tkns[0])
+                tokens.append("->")
+                tokens.append(tkns[1])
+                continue            
             if "|" in t:
                 tkns = t.split("|")
                 for _t in tkns:
@@ -132,7 +199,7 @@ class Tokenizer():
     def tokenize_with_lineno(self, source_code: str, startpoint: int) -> dict[int, list[str]]:
         return self.__do_tokenize(source_code, startpoint)
     
-    def generate_tokens(self, source_code: str = None, startpoint: int = 1) -> list[Token]:
+    def generate_tokens(self, source_code: str | None = None, startpoint: int = 1) -> list[Token]:
         """ Generates Token obejcts by the source code. """
 
         if source_code == None:

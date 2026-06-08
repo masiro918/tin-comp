@@ -98,7 +98,7 @@ class LoadBoolConst(Instruction):
         self.dest = dest
 
 class LoadIntConst(Instruction):
-    def __init__(self, value: int, dest: str):
+    def __init__(self, value: int | str, dest: str):
         self.value = value
         self.dest = dest
 
@@ -115,7 +115,7 @@ class Label(Instruction):
         return self.name
 
 class Call(Instruction):
-    def __init__(self, fun: str, args: list[str], dest: Label | str):
+    def __init__(self, fun: str, args: list[str] | str, dest: Label | str):
         self.fun = fun
         self.args = args
         self.dest = dest
@@ -124,7 +124,6 @@ class Call(Instruction):
         args = str(self.args).replace('\'', '')
         if self.dest == None:
             return f"Call({self.fun}, {args}, None)"
-            #raise CompilerException("IR generation error: dest cannot be undefined")
         return f"Call({self.fun}, {args}, {self.dest})"
 
 class Jump(Instruction):

@@ -19,7 +19,7 @@ sys.path.append('../')
 
 from src.compiler.compiler_exception import CompilerException
 
-from src.compiler.misc import var_names
+from src.compiler.globls import var_names, custom_types
 from src.compiler.optimizer import (
     eliminate_undefined_vars_in_load_insts,
     eliminate_double_copy_operations,
@@ -48,12 +48,12 @@ from src.structs.ir import *
 
 reserved_identifiers = ['true', 'false']
 reserved_names = ['begin','end','str', 'int', 
-                  'bool', 'array', 'set', 'while', 
+                  'bool', 'struct', 'new', 'array', 'set', 'while', 
                   'end', 'if', 'else', 'then', 'do', 
                   'fun', 'continue', 'break', 'return',
                   'true', 'false', 'var']
 
-def generate_ir(root_expr: Expression, params: list[str] = None) -> list[Instruction]:
+def generate_ir(root_expr: Expression, params: list[str] | None = None, optimizations = True) -> list[Instruction]:
     created_var = ""
 
     def new_var() -> IRVar:
@@ -71,9 +71,7 @@ def generate_ir(root_expr: Expression, params: list[str] = None) -> list[Instruc
 
     i_label = 1
 
-    def visit(expr: Expression) -> str:
-        loc = None
-
+    def visit(expr: Expression):
         nonlocal i_label
 
         match expr:
@@ -162,7 +160,6 @@ def generate_ir(root_expr: Expression, params: list[str] = None) -> list[Instruc
             case FunctionCall():
                 func_name = expr.func_name
                 func_params = expr.params
-                func_type = expr.func_type
 
                 ret_val = new_var()
 
@@ -179,7 +176,7 @@ def generate_ir(root_expr: Expression, params: list[str] = None) -> list[Instruc
                 
                 ins.append(Call(func_name, str(vars), ret_val.__str__()))
                 return ret_val
-                                
+                                           
             case VariableDeclaration():
                 name = expr.name
 
@@ -285,7 +282,11 @@ def generate_ir(root_expr: Expression, params: list[str] = None) -> list[Instruc
     visit(root_expr)
     
     # optimizations
-    ins = eliminate_undefined_vars_in_load_insts(ins)
-    ins = eliminate_double_copy_operations(ins)
-    ins = put_registers(ins)
+    if optimizations:
+        ins = eliminate_undefined_vars_in_load_insts(ins)
+        ins = eliminate_double_copy_operations(ins)
+
+        # IMPORTANT: this brokes the standard of compiler design: IR should be abstract, but this
+        # proposes that the target platform is x86_64
+        ins = put_registers(ins)
     return ins

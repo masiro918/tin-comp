@@ -1,0 +1,52 @@
+fun checksum(c): Int {
+	var sum = 0;
+	var i = 0;
+
+	while i < 999 do {
+		if get(c, i) % 2 == 0 then {
+			sum = sum + get(c, i) * 3;
+		} else {
+			sum = sum - get(c, i) * 2;
+		}
+
+		i = i + 1;
+	}
+	
+	return sum;
+}
+
+fun begin() {
+	var a = array(999);
+	var b = array(999);
+	var c = array(999);
+
+	var i = 0;
+	while i < 999 do {
+		set(a, i, i % 97);
+		set(b, i, i % 53);
+		set(c, i, 0);
+		i = i + 1;
+	}
+
+	i = 0;
+	while i < (999 - 3) do {
+		var getter: Int = get(b, i + 1);
+		var val: Int = getter + getter;
+		
+		var getter2: Int = get(b, i + 2);
+		var val2 = getter2 - get(a, i + 2);
+		set(c, i, get(a, i) * get(b, i) + get(a, i));
+		set(c, i + 1, get(a, i + 1) * val);
+		set(c, i + 2, get(a, i + 2) * val2);
+		i = i + 3;
+	}
+
+	while i < 999 do {
+		set(c, i, get(a, i) + get(b, i));
+		i = i + 1;
+	}
+
+	print_int(checksum(c));
+}
+
+begin();

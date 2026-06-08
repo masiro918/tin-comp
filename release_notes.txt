@@ -1,3 +1,13 @@
+v0.9.10 - 8.6.2026
+
+Please note the previous release annoucement for version numbering!
+
+Added structure features and something else.
+
+	<Matias Siro>
+
+
+--------------------------------------------------------------------
 v0.9.9 - 10.5.2026
 
 This update has added some small optimizations. These include Dead Code Elimination, Copy Propagation and Register Allocation. The features added for these are very small, but they could potentially have an impact on the efficiency of the assembly being produced. I have done some small efficiency tests that have shown a possible performance difference when running a complex array-loop program.

@@ -17,19 +17,18 @@ limitations under the License.
 import re
 import sys
 sys.path.append("../")
-
+#'''
 from src.compiler.compiler_exception import CompilerException
 
 from src.structs._ast import Token, Type, SubProgram
 from src.compiler.tokenizer import Tokenizer
+from src.compiler.globls import var_names, custom_types
 
 binary_operators = [
     'or', '==', '!=', '<', '<=', '>', '>=',
     '+', '-', '*', '/', '%',
 ]
-
-global var_names
-var_names = {}
+#'''
 
 global reserved_func_names
 reserved_func_names = ['print_int', 'print_bool', 'print_str', 'print_str',
@@ -37,6 +36,85 @@ reserved_func_names = ['print_int', 'print_bool', 'print_str', 'print_str',
                        'str_to_int', 'int_to_str', 'get_char_from_str',
                        'input_str', 'create_empty_str', 'pow2', 'set',
                        'array', 'get']
+
+def replace_struct_inits(tokens: list[Token]) -> list[Token]:
+    new_tokens = []
+
+    i=0
+    added=False
+    while i < len(tokens):
+        type = tokens[i].text.strip()
+        for struct in custom_types:
+            if struct["name"] == type and tokens[i-1].text == "=" and tokens[i+1].text == ";":
+                field_count = len(struct["fields"])
+                new_tokens.pop()
+                new_tokens.append(Token(None, "OPERATOR", "="))
+                new_tokens.append(Token(None, "IDENTIFIER", "array"))
+                new_tokens.append(Token(None, "PARENTHESIS", "("))
+                new_tokens.append(Token(None, "INT_LITERAL", f"{field_count}"))
+                new_tokens.append(Token(None, "IDENTIFIER", ")"))
+                added=True
+                break
+        if not added:
+            new_tokens.append(tokens[i])
+        else:
+            added=False
+        i=i+1
+
+    return new_tokens
+
+
+def replace_struct_refereces_by_the_index(tokens: list[Token]) -> list[Token]:
+    new_tokens = []
+
+    i=0
+    while i < len(tokens):
+        if tokens[i].text == "->":
+            #print(tokens[i-1], tokens[i], tokens[i+1])
+            type = tokens[i-1].text.strip()
+            field = tokens[i+1].text.strip()
+            for struct in custom_types:
+                if struct["name"] == type:
+                    field_idx = struct["fields"].index(field)
+                    new_tokens.pop()
+                    new_tokens.append(Token(None, "INT_LITERAL", f"{field_idx}".strip()))
+                    i=i+1
+                    break
+        else:
+            new_tokens.append(tokens[i])
+        i=i+1
+
+    return new_tokens
+
+def handle_braces_in_function_definitions(source: str) -> str:
+    """ 
+    If function definition line does not consists {, this function adds it
+    and remove { at the next token occurrence.
+    """
+    
+    try:
+        new_lines = []
+        lines = source.split("\n")
+
+        brece_added = False
+        for line in lines:
+            if brece_added == True:
+                if line.strip() == "":
+                    new_lines.append("// comment")
+                    continue
+                if line.strip()[0] == "{":
+                    brece_added = False
+                    line = line[1:]
+                else:
+                    raise Exception
+            if line.strip()[0:3] == "fun" and line.strip()[-1] != "{":
+                brece_added = True
+                line = line + "{"
+            new_lines.append(line)
+
+        return '\n'.join(new_lines)
+    except Exception:
+        return source
 
 def rename_str_type(source_code: str) -> str:
     """ Replaces type 'Str' to 'String'. """
@@ -257,6 +335,14 @@ def add_semidots(tokens: list[Token]) -> list[Token]:
             continue
         new_tkn_list.append(tokens[i])
     return new_tkn_list
+
+def is_custom_type(_type: str) -> bool:
+    # check if custom type
+    global custom_types
+    for type in custom_types:
+        if type.__str__() == str(_type):
+            return True
+    return False
 
 def resolve_type(token: Token | str | int | bool, lineno: int = None) -> Type:
     if type(token) != Token:

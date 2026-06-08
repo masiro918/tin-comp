@@ -1,0 +1,40 @@
+fun set_strings(arr) {
+	var i = 0;
+	while i < 10 do {
+		set(arr, i, "!dlroW olleH");
+		i = i + 1;
+	}
+}
+
+fun turn_strings(arr) {
+	var i = 0;
+	while i < 10 do {
+		var string = get(arr, i);
+		
+		var new_string = create_empty_str();
+		
+		var j = str_len(string) - 1;
+		while j >= 0 do {
+			new_string = str_cat(new_string, get_char_from_str(string, j));
+			j = j - 1;
+		}
+		
+		set(arr, i new_string);
+		
+		i = i + 1;
+	}
+}
+
+fun print_strings(arr) {
+	var i = 0;
+	while i < 10 do {
+		print_str(get(arr, i));
+		
+		i = i + 1;
+	}
+}
+
+var strings = array(10);
+set_strings(strings);
+turn_strings(strings);
+print_strings(strings);

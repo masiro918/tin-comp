@@ -1,6 +1,7 @@
 
 
 import sys
+from typing import Any
 sys.path.append("../")
 
 from src.compiler.compiler_exception import CompilerException
@@ -140,10 +141,17 @@ class Return(Expression):
         self.value = value
     def __repr__(self):
         return f"Return(value=[{self.value}])"
+    
+class Struct(Expression):
+    def __init__(self, name: str, fields: list[str]):
+        self.name = name
+        self.fields = fields
+    def __repr__(self):
+        return f"Struct(name=[{self.name}], fields=[{', '.join(self.fields)}])"
 
 class Type():
-    def __init__(self, type_name: str):
-        if type_name not in ['Int', 'Bool', 'Unit', 'Str', 'String']:
+    def __init__(self, type_name: str, custom_type = False):
+        if type_name not in ['Int', 'Bool', 'Unit', 'Str', 'String'] and custom_type == False:
             raise CompilerException(f"Illegal variable type: {type_name}")
         self.type_name = type_name
 

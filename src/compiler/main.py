@@ -27,10 +27,10 @@ from src.compiler.parser import Parser
 from src.compiler.type_checker import typecheck, userdefined_functions, variables
 from src.compiler.ir_generator import generate_ir
 from src.compiler.asm_generator import generate_asm
-from src.compiler.misc import pickup_functions, rename_str_type
+from src.compiler.misc import pickup_functions, rename_str_type, handle_braces_in_function_definitions
 from src.structs._ast import SubProgram
 
-def compile_module(module: SubProgram, startpoint, is_main_fun = False) -> str:
+def compile_module(module: SubProgram, startpoint, is_main_fun = False, optimizations = True) -> str:
     """ Compiles a single 'module' (actually function). Return asm. """
 
     tokenizer=Tokenizer()
@@ -52,19 +52,26 @@ def compile_module(module: SubProgram, startpoint, is_main_fun = False) -> str:
         i+=1
     
     typecheck(ast)
-    ir = generate_ir(ast, module.params)
+    ir = generate_ir(ast, module.params, optimizations)
 
     if is_main_fun == False:
         global userdefined_functions
         userdefined_functions.append([module.name, module.ret_type])
+        if not optimizations:
+            return generate_asm(ir, module.name)
         return do_optimize(generate_asm(ir, module.name))
+    if not optimizations: 
+        return generate_asm(ir, "main")
     return do_optimize(generate_asm(ir, "main"))
 
-def compile_modules(source: str):
+def compile_modules(source: str, optimizations = True):
     """ 
     Compiles the functions one by one. Finally compiles the main function
     which is interpreted the code that is not covered in any custom function.
     """
+    
+    # handle function definitions
+    source = handle_braces_in_function_definitions(source)
 
     # rename str type
     source = rename_str_type(source)
@@ -76,19 +83,19 @@ def compile_modules(source: str):
     
     # user-defined functions
     for module in modules[:-1]:
-        asm_file = asm_file + compile_module(module, module.lineno, False)
+        asm_file = asm_file + compile_module(module, module.lineno, False, optimizations)
     
     # and the main function
-    asm_file = asm_file + compile_module(modules[-1], startpoint, True)
+    asm_file = asm_file + compile_module(modules[-1], startpoint, True, optimizations)
     return asm_file
 
-def main(source_file: str, target_file = "a.out", base_dir = "../", asm_output_file = False):
+def main(source_file: str, target_file = "a.out", base_dir = "../", asm_output_file = False, optimizations = True):
     try:
         source = ""
         with open(source_file) as f:
             source = f.read()
         
-        asm_output = compile_modules(source)
+        asm_output = compile_modules(source, optimizations)    
 
         # links the stdlib (not a libc!)
         lib = ""
@@ -113,9 +120,14 @@ def main(source_file: str, target_file = "a.out", base_dir = "../", asm_output_f
 if __name__ == '__main__':
     try:
         if len(sys.argv) > 2:
-            if len(sys.argv) > 3 and sys.argv[3] == "-S":
-                main(sys.argv[1], sys.argv[2], None, True)
-            else: main(sys.argv[1], sys.argv[2], None)
+            if len(sys.argv) > 4 and sys.argv[3] == "-O0" and sys.argv[4] == "-S":
+                main(sys.argv[1], sys.argv[2], None, True, False)
+            else:
+                if len(sys.argv) > 3 and sys.argv[3] == "-S":
+                    main(sys.argv[1], sys.argv[2], None, True)
+                elif len(sys.argv) > 3 and sys.argv[3] == "-O0":
+                    main(sys.argv[1], sys.argv[2], None, False, False)
+                else: main(sys.argv[1], sys.argv[2], None)
         else:
             main(sys.argv[1])
     except CompilerException as e:

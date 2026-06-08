@@ -817,4 +817,118 @@ def test_case71():
 
     assert read_output() == """-403439616
 """
+
+def test_case72():
+    import subprocess
+
+    main("test_programs/large_program2.txt", "a.out", "../src/")
+    proc = subprocess.run(
+        ["./a.out"],
+        input="laske\n4\n4\n*\nlaske\n4\n5\n-\n\nlopeta",
+        text=True,
+        capture_output=True
+    )
+
+    assert proc.stdout == """Anna komento: Anna kaksi lukua: Anna operaatio: 
+16
+Anna komento: Anna kaksi lukua: Anna operaatio: 
+-1
+Anna komento: Ohjelma lopetetaan.
+"""
+
+def test_case73():
+    import subprocess
+
+    main("test_programs/large_program3.txt", "a.out", "../src/")
+    proc = subprocess.run(
+        ["./a.out"],
+        input="laske\n4\n4\n*\nlaske\n4\n5\n-\n\nlopeta",
+        text=True,
+        capture_output=True
+    )
+
+    assert proc.stdout == """Anna komento: Anna kaksi lukua: Anna operaatio: 
+16
+Anna komento: Anna kaksi lukua: Anna operaatio: 
+-1
+Anna komento: Ohjelma lopetetaan.
+"""
+
+def test_case74():
+    import subprocess
+
+    main("test_programs/large_program4.txt", "a.out", "../src/")
+    proc = subprocess.run(
+        ["./a.out"],
+        input="laske\n4\n4\n*\nlaske\n4\n5\n-\n\nlopeta",
+        text=True,
+        capture_output=True
+    )
+
+    assert proc.stdout == """Anna komento: Anna kaksi lukua: Anna operaatio: 
+16
+Anna komento: Anna kaksi lukua: Anna operaatio: 
+-1
+Anna komento: Ohjelma lopetetaan.
+"""
     
+def test_case75():
+    try:
+        main("test_programs/example_str10.txt", "a.out", "../src/")
+        run_program()
+        assert read_output() == """Hello World!
+Hello World!
+Hello World!
+Hello World!
+Hello World!
+Hello World!
+Hello World!
+Hello World!
+Hello World!
+Hello World!
+"""
+    except Exception as e:
+        assert False
+
+def test_case76():
+    try:
+        main("test_programs/complex_program2.txt", "a.out", "../src/")
+        run_program()
+        assert read_output() == """2128936
+"""
+    except Exception as e:
+        assert False
+
+def test_case77():
+    main("test_programs/test_structs.txt", "a.out", "../src/")
+    run_program()
+    assert read_output() == """Suomi
+"""
+
+def test_case78():
+    main("test_programs/test_structs2.txt", "a.out", "../src/")
+    run_program()
+    assert read_output() == """Suomi
+"""
+
+def test_case79():
+    main("test_programs/test_structs3.txt", "a.out", "../src/")
+    run_program()
+    assert read_output() == """Suomi asukkaita 5500000
+"""
+
+def test_case80():
+    main("test_programs/test_structs4.txt", "a.out", "../src/")
+    run_program()
+    assert read_output() == """Suomi asukkaita 5500000
+Amerikan yhdysvallat asukkaita 331449281
+"""
+
+def test_case81():
+    main("test_programs/test_structs5.txt", "a.out", "../src/")
+    run_program()
+    assert read_output() == """Suomi asukkaita 5500000
+Presidentin Stubb syntymävuosi on 1968 
+Amerikan yhdysvallat asukkaita 331449281
+Presidentin Trump syntymävuosi on 1946 
+"""

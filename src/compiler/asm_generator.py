@@ -142,7 +142,6 @@ def translate_to_asm(ir: list[str]) -> str:
 
             else:
                 # function call
-
                 func_name = inst.replace("Call(", "").split(", [")[0].strip()
                 global data
 
@@ -231,6 +230,9 @@ def variable_rename(src: list[str]) -> list[str]:
     new_lst = []
     for line in src:
         for var in var_names:
+            if "%r1" not in variables[var]:
+                if int(variables[var].replace("-", "").replace("(%rbp)", "")) > 1000:
+                    raise CompilerException("Too many memory allocations in the function!")
             line = line.replace(var, variables[var])
         new_lst.append(line)
     return new_lst
@@ -360,7 +362,7 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
             if exists(variables, value) == False:
                 raise CompilerException("Assembly generation error: undeclarated variable detected in the IR code.")
         if re.match(r"(Call).{0,}", inst):
-            ret_var = inst.split(", ")[-1].replace(")", "")            
+            ret_var = inst.split(", ")[-1].replace(")", "")   
             if exists(variables, ret_var) == False:
                 variables["" + ret_var] = f"{ptr_top_of_the_stack}(%rbp)"
                 ptr_top_of_the_stack -= 8
@@ -432,5 +434,6 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
     # rename labels
     asm_lines = asm_lines.replace(".L", f".L_{module_name}_")
     asm_lines = asm_lines.replace("L", f"L_{module_name}_")
+    asm_lines = asm_lines.replace("x0_", "%rax")
     ptr_param_reg = 0
     return asm_lines

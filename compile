@@ -1,10 +1,15 @@
 #!/bin/sh
 cd tests
 
-if [ -n "$3" ]
+if [ -n "$4" ]
 then
-	python3 ../src/compiler/main.py ../$1 $2 $3
+	python3 ../src/compiler/main.py ../$1 $2 $3 $4
 else
-	python3 ../src/compiler/main.py ../$1 $2
+	if [ -n "$3" ]
+	then
+		python3 ../src/compiler/main.py ../$1 $2 $3
+	else
+		python3 ../src/compiler/main.py ../$1 $2
+	fi
 fi
 mv $2 ../$2 > /dev/null 2>&1

@@ -27,7 +27,9 @@ from src.compiler.misc import (
     is_binaryop, 
     is_identifier, 
     is_int_literal,
-    rename_variables
+    rename_variables,
+    replace_struct_refereces_by_the_index,
+    replace_struct_inits
 )
 
 from src.structs._ast import (
@@ -46,7 +48,8 @@ from src.structs._ast import (
     Break,
     Continue,
     Return,
-    String
+    String,
+    Struct
 )
 
 
@@ -58,6 +61,10 @@ class Parser():
         """ Returns ast by given tokens. """
         
         pos = 0
+
+        # desugaring struct references
+        tokens = replace_struct_inits(tokens)
+        tokens = replace_struct_refereces_by_the_index(tokens)
 
         # desugaring top level braces
         tokens = add_toplevel_context(tokens)
@@ -134,7 +141,7 @@ class Parser():
             token = consume()
 
             if is_identifier(token) == False: 
-                raise CompilerException(f"Line: {token.L}: illegal identifier")
+                raise CompilerException(f"Line: {token.L}: illegal identifier ")
             return Identifier(str(token.text), token.L)
         
         def parse_if_statement() -> IfThenCondition | IfElseThenCondition:
@@ -313,8 +320,8 @@ class Parser():
             if peek().text != "{":
                 consume(";")
             
-            return Return(value) 
-        
+            return Return(value)
+                
         def parse_string() -> FunctionCall:
             nonlocal pos
             node_string = String(peek().text)
@@ -338,6 +345,9 @@ class Parser():
 
             if token1.text.startswith("\""):
                 return parse_string()
+            
+            if token1.text == "struct":
+                return parse_struct()
             
             if token1.text == "return":
                 return parse_return()
@@ -374,7 +384,7 @@ class Parser():
             
             if token1_type == "IDENTIFIER":
                 return parse_identifier()
-            
+                        
             raise CompilerException(f"Illegal expression in line {token1.L}")
 
         return parse_expression()

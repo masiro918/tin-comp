@@ -18,6 +18,7 @@ import sys
 sys.path.append("../")
 
 from src.compiler.compiler_exception import CompilerException
+from src.compiler.misc import resolve_type, is_custom_type
 
 from typing import Any
 
@@ -25,7 +26,6 @@ from src.structs._ast import (
     Expression,
     Type
 )
-from src.compiler.misc import resolve_type
 
 global userdefined_functions
 userdefined_functions = []
@@ -38,6 +38,7 @@ line_in_binop = -1
 
 def exists(name: Any):
     """ Checks that variable is already declared. """
+
     if resolve_type(name, line_in_binop).__str__() != 'Str':
         return False
     try:
@@ -130,6 +131,8 @@ def typecheck(node: Expression) -> Type:
             if typecheck(name).__str__() != 'Str': raise CompilerException(f"Line {name.line}: Type error!")
             
             if node.type != None:
+                if is_custom_type(str(node.type)):
+                    return Type(str(node.type), True)
                 t=typecheck(value)
                 _type = Type(node.type.__str__())
 
@@ -176,7 +179,7 @@ def typecheck(node: Expression) -> Type:
             typecheck(node._else)
 
             return Type('Unit')
-            
+                   
         case 'FunctionCall':
             if node.func_name == "print_int": 
                 node.func_type = 'Unit'
@@ -234,6 +237,9 @@ def typecheck(node: Expression) -> Type:
             for fun in userdefined_functions:
                 if node.func_name == fun[0]:
                     node.func_type = fun[1]
+
+                    if is_custom_type(str(node.func_type)):
+                        return Type(str(node.func_type), True)
                     return Type(fun[1])
             
             # a special case, not a 'real' function call

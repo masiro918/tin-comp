@@ -7,7 +7,7 @@ This short manual guides you programming with the programming language. After re
 1.  Main Structures
 2.  Strings
 3.  Arrays
-4.  VERY Important to know
+5.  VERY Important to know
 
 ---
 
@@ -123,7 +123,42 @@ You can retrieve an element from an array with
 
 where `L` is the position in the array. This function returns an integer.
 
-## 4. VERY Important to know
+## 4. Structs
+
+Records are complex user-defined data types. For example, it is possible to create a data type `Country` that contains information about the population size and the name of the state (Str + Int). Technically, a record is an array (which therefore cannot be created in a loop (see Chapter 5)), but its members (cf. elements) are referenced by name.
+
+A record must be defined before an **instance** of it is created. The definition should be placed just before the start of the main program.
+
+Example of a definition:
+
+
+        define struct COUNTRY = { name, population_count };
+
+
+Once the definition has been made, N instances of the record can be created, where N >= 0.
+
+Example of creating an instance:
+
+
+        finland = New(COUNTRY);
+
+
+That is, the `New` command is used for creation (NOTE! It looks like a function, but it is *not actually* one.)
+
+After this, values can be assigned to the members of the instance:
+
+
+        set(finland, COUNTRY->name, "Suomen tasavalta");
+        set(finland, COUNTRY->population_count, "5500000);
+
+
+The assigned values can be retrieved with the `get` function:
+
+
+        get(finland, COUNTRY->name);
+
+
+## 5. VERY Important to know
 
 
 There are several important and significant limitations and bugs to important to know when using the compiler.
@@ -137,8 +172,9 @@ There are several important and significant limitations and bugs to important to
   - when defining the type Str, you may encounter unexpected and strange type checking errors
 - you can name variables with function names, but even then the end result is completely uncertain
 - in some situations the error messages can be very vague
+- this is not technically a "real" limitation, but you cannot declare arrays in the loop, because the memory areas is reserved on compiling time: the compiler cannot know how many array instances should be create :-)
 
-## 4.1. Recommendations and good practices
+## 5.1. Recommendations and good practices
 
 - although it is possible to write the main program without any function, do it in a function called begin, which is called
   - this way you avoid certain rare bugs related to error messages reported by the compiler
