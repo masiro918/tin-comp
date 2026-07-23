@@ -1,0 +1,23 @@
+define struct VALTIO = { itsenaisyys, asukkaita };
+
+var valtiot = array(10);
+
+var i = 0;
+while i < 10 do {
+	var maa = New(VALTIO);
+	write_long(maa, VALTIO->itsenaisyys, 1917 + i);
+	write_long(maa, VALTIO->asukkaita, 5600000 + i);
+	set(valtiot, i, maa);
+	
+	i = i + 1;
+}
+
+i = 0;
+while i < 10 do {
+	print_str(str_cat("Valtio ", int_to_str(i)));
+	print_int(read_long(get(valtiot, i), VALTIO->itsenaisyys));
+	print_int(read_long(get(valtiot, i), VALTIO->asukkaita));
+	
+	i = i + 1;
+}
+

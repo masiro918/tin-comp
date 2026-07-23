@@ -1,8 +1,8 @@
 import sys
 import os
-sys.path.append('../')
+sys.path.append('../src/')
 
-from src.compiler.main import main
+from main import main
 
 def read_output():
     output = ""
@@ -932,3 +932,160 @@ Presidentin Stubb syntymävuosi on 1968
 Amerikan yhdysvallat asukkaita 331449281
 Presidentin Trump syntymävuosi on 1946 
 """
+
+def test_case82():
+    main("test_programs/complex_program3.txt", "a.out", "../src/")
+    run_program()
+    assert read_output() == "242007\n"
+
+def test_case83():
+    try:
+        main("test_programs/example_externs.txt", "a.out", "../src/")
+        assert True == True
+    except:
+        assert True == False
+
+def test_case84():
+    main("test_programs/complex_program4.txt", "a.out", "../src/")
+    run_program()
+    assert read_output() == """IR Interpreter for Custom language
+==================================
+
+Running program with instructions count is 10
+Instruction: loadIntConst
+  value: 7
+  dest_var: x1
+Instruction: loadIntConst
+  value: 5
+  dest_var: tmp5
+Call
+  operator: >
+  params: x1 tmp5
+  ret_var: x2
+CondJump
+  ir_var: x2
+  dest: _label_then
+Jump
+  dest: _label_end
+    _label_then
+Call
+  operator: print_str
+  params: \\\\Hello world\\\\
+  ret_var: x0
+Jump
+  dest: _label_end
+    _label_end
+Call
+  operator: print_str
+  params: \\\\Bye world\\\\
+  ret_var: x0
+Program execution completed.
+hahaa
+"""
+
+def test_case85():
+    main("test_programs/example_str11.txt", "a.out", "../src/")
+    run_program()
+    assert read_output() == """Hello world
+Im Bob!
+Hello world
+Im Bob!
+Im Alice
+Im Alice
+Im Bob!
+"""
+
+def test_case86():
+    main("test_programs/example_str12.txt", "a.out", "../src/")
+    run_program()
+    assert read_output().replace("\x0e", "") == """I'm [Bob!]
+Hello world
+I'm [Bob!]Hello world
+"""
+
+def test_case89():
+    main("test_programs/variable_declaration.txt", "a.out", "../src/")
+    run_program()
+    assert read_output().replace("\x0e", "") == """I'm [Bob!]
+Hello world
+I'm [Bob!]I'm [Bob!]
+"""
+
+def test_case90():
+    main("test_programs/example_str13.txt", "a.out", "../src/")
+    run_program()
+    assert read_output().replace("\x0e", "") == """I'm [Bob!]
+
+I'm [Bob!]I'm [Bob!]
+"""
+
+def test_case91():
+    main("test_programs/example_str14.txt", "a.out", "../src/")
+    run_program()
+    assert read_output().replace("\x0e", "") == """Hello world
+I'm [Bob!]
+
+I'm [Bob!]I'm [Bob!]
+"""
+
+def test_case92():
+    main("test_programs/test_structs6.txt", "a.out", "../src/")
+    run_program()
+    assert read_output() == """Valtio 0
+1917
+5600000
+Valtio 1
+1918
+5600001
+Valtio 2
+1919
+5600002
+Valtio 3
+1920
+5600003
+Valtio 4
+1921
+5600004
+Valtio 5
+1922
+5600005
+Valtio 6
+1923
+5600006
+Valtio 7
+1924
+5600007
+Valtio 8
+1925
+5600008
+Valtio 9
+1926
+5600009
+"""
+
+def test_case93():
+    except_output = """type q to exit
+Anna kirjan nimi: 
+Anna kirjan painovuosi: 
+Anna kirjan hyllypaikka: 
+type q to exit
+Anna kirjan nimi: 
+Anna kirjan painovuosi: 
+Anna kirjan hyllypaikka: 
+type q to exit
+Anna kirjan nimi: 
+Kirjan nimi on tuntematon_sotilas painovuosi 1954 ja hyllypaikka 123
+Kirjan nimi on taalla_pohjantahden_alla painovuosi 1959 ja hyllypaikka 456
+"""
+
+    import subprocess
+
+    main("test_programs/test_structs7.txt", "a.out", "../src/")
+    proc = subprocess.run(
+        ["./a.out"],
+        input="tuntematon_sotilas\n1954\n123\ntaalla_pohjantahden_alla\n1959\n456\nq",
+        text=True,
+        capture_output=True
+    )
+
+    assert proc.stdout == except_output

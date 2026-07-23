@@ -1,12 +1,132 @@
-***Attention! This documentation is still very much in progress.***
+***Attention! This documentation is still in progress.***
 -----------------------------------------
-# 1. Common Technical Solutions and Overview
+# 0. Introduction to Common Technical Solutions and Overview
 
-Programming language structures are hierarchical. The diagram below shows that a structure can contain structures with an arrow pointing away from them. For example, a VariableAssign can contain an Expression, which covers mathematical expressions, constants, variables, and function calls. However, a VariableAssign cannot contain an if-statement or a context start or end (=block). On the other hand, an if-statement can (and must) contain a binary operation and an expression. An Expression is the most complex of the structures. Its structures can be recursive, meaning they can repeat themselves. For example 
+Programming language structures are hierarchical.  For example, a VariableAssign can contain an Expression, which covers mathematical expressions, constants, variables, and function calls. However, a VariableAssign cannot contain an if-statement or a context start or end (=block). On the other hand, an if-statement can (and must) contain a binary operation and an expression. An Expression is the most complex of the structures. Its structures can be recursive, meaning they can repeat themselves. For example 
 
 ```
 f(f(f(x + f(x))))) - 2 / g(f(g(x))))
 ```
+
+### 0.1 Architecture of the Software
+
+Below is expressed the compiler's internal dependencies. 
+
+```mermaid
+graph TD
+
+  %% Core
+  main["main.py"]
+  compiler_exception["compiler_exception.py"]
+
+  %% Frontend
+  tokenizer["frontend/tokenizer.py"]
+  parser["frontend/parser.py"]
+  misc["frontend/misc.py"]
+  type_checker["frontend/type_checker.py"]
+  ir_generator["frontend/ir_generator.py"]
+  optimizer["frontend/optimizer.py"]
+  globls["frontend/globls.py"]
+
+  %% Backend
+  asm_generator["backend/asm_generator.py"]
+  backend_optimizer["backend/backend_optimizer.py"]
+
+  %% Structs
+  ast["structs/_ast.py"]
+  ir["structs/ir.py"]
+
+  %% Dependencies (imports)
+  main --> compiler_exception
+  main --> tokenizer
+  main --> parser
+  main --> type_checker
+  main --> ir_generator
+  main --> misc
+  main --> asm_generator
+  main --> backend_optimizer
+  main --> ast
+
+  tokenizer --> compiler_exception
+  tokenizer --> globls
+  tokenizer --> ast
+
+  parser --> compiler_exception
+  parser --> misc
+  parser --> ast
+
+  misc --> compiler_exception
+  misc --> tokenizer
+  misc --> globls
+  misc --> ast
+
+  type_checker --> compiler_exception
+  type_checker --> misc
+  type_checker --> globls
+  type_checker --> ast
+
+  ir_generator --> compiler_exception
+  ir_generator --> globls
+  ir_generator --> optimizer
+  ir_generator --> ast
+  ir_generator --> ir
+
+  optimizer --> ir
+
+  asm_generator --> ir
+  asm_generator --> compiler_exception
+
+  ast --> compiler_exception
+```
+
+Next is explained the compilation process at high-level.
+
+## 0.2 Execution Paths of TinComp Compiler
+
+### Main Entry Point
+
+1. **Main Script (src/compiler/main.py)**
+   - The Entry point for the compiler
+   - Reads the source file, launches the compilation process by calling `compile_modules` function
+
+### Compilation Stages
+
+1. **Compile Modules Function**
+
+   - **Source Preparation**
+     - Processes definitions and renames string types.
+     - Extracts function definitions and identifies where the main function starts
+   
+   - **Module Compilation**
+     - Iterates over each extracted module (subprogram/function), compiling them separately via `compile_module`.
+     - Each module is translated into assembly code
+
+2. **Compile Module Function**
+
+   - **Tokenization (src/compiler/tokenizer.py)**
+     - Instantiates the `Tokenizer` class, transforming the module into Token objects with desugaring for structs and handling comments
+   
+   - **Parsing (src/compiler/parser.py)**
+     - Transforms the created tokens into an AST by a recursive descent parser
+     - Executes desugaring to add missing semicolons and renames variables before the parsing process actually begins
+
+   - **Type Checking (src/compiler/type_checker.py)**
+     - Checks the AST for type correctness in binary operations and assignments
+     - Manages user-defined function types
+
+   - **IR Generation (src/compiler/ir_generator.py)**
+     - Converts AST to IR instructions, performing optimizations such as register allocation (Yeah, it should be performed during the assembly code generation, because IR should be platform free)
+     - Handles context-based variable management.
+
+   - **Assembly Generation (src/compiler/asm_generator.py)**
+     - Translates IR into AMD64 assembly code, managing variables and memory allocation.
+     - Handles function and subprogram assembly generation, including stack setup and parameter passing.
+
+This short description hopefully clarify the major execution paths and interactions between the software's internal components within the TinComp compiler, capturing both sequential processes and modular responsibilities. Each step leverages previous outputs, forming a coherent and effective compilation pipeline.
+
+# 1. More Detailed Explanations
+
+Before the compilation process begins, the code is parsed into its own so-called modules, with functions and the parameters they need. The functions are parsed "dumbly". This means that they are very case-sensitive: their syntax cannot be anything: spaces etc. matter! This is because no real browsing and parsing of the code is done at this stage.
 
 ## 1.1. Tokenizing and Parsing
 
@@ -25,6 +145,7 @@ f(f(f(x + f(x))))) - 2 / g(f(g(x))))
 
 - compiler checks types of comparing operands, nothing else
   - **only compare operations and variable declarations are type checked** , not function parameters
+  - we do type checking by recursively executing the AST data structure without actually "executing" the code. The execution only checks that the given types for binary operations and variables are valid. That is, the execution stops when we reach the leaf nodes; we only look at the types.
 
 
 ## 1.3. IR Generation
@@ -42,11 +163,12 @@ f(f(f(x + f(x))))) - 2 / g(f(g(x))))
 - in the future it would be better to strongly separate frontend and backend
 - variables are mapped into rbp-register based by 1:1 -> e.g. x1 => -8(%rbp) and x2 => -16(%rbp)
   - some variables are mapped into register r12-15 (see Chapter 2)
+  - some variables may be removed later by the optimizer (See Chapter 2)
 - currently the stack size is a constant: 1024 bytes despite of real count of the local variables -> this limits the maximum number of variables in a single subprogram
 - boolean values is interpreted as integers 1 and 2
-- strings and other data (e.g. arrays) typed variables is expressed as a pointer that indicated into memory locations
+- strings and other data (e.g. arrays and structs) typed variables is expressed as a pointer that indicated into memory locations
   - this is not efficient, but clear
-  - if values are constat instead of references, CPU cache (would) works more completely  
+  - if values are constant instead of references, CPU cache (would) works more completely  
 - function call routines follow System V 64-bit Calling Convention, but the number of function parameters is limited because we don't use the stack for additional parameters
   - user-defined functions are fully "subprograms": the language (and compiler) does not support global variables so there the only way to share information between functions are function parameters
   - the compiler handles functions separately on by one throw the compilation pipeline and returns compiled assembly code, statements there don't below any functions are interpreted as "main" function where the execution starts. Finally the compiler constructs the program by compiled functions

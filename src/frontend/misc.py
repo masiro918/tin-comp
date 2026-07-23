@@ -15,20 +15,18 @@ limitations under the License.
 """
 
 import re
-import sys
-sys.path.append("../")
-#'''
-from src.compiler.compiler_exception import CompilerException
 
-from src.structs._ast import Token, Type, SubProgram
-from src.compiler.tokenizer import Tokenizer
-from src.compiler.globls import var_names, custom_types
+from compiler_exception import CompilerException
+
+from frontend.tokenizer import Tokenizer
+from frontend.globls import var_names, custom_types
+
+from structs._ast import Token, Type, SubProgram
 
 binary_operators = [
     'or', '==', '!=', '<', '<=', '>', '>=',
     '+', '-', '*', '/', '%',
 ]
-#'''
 
 global reserved_func_names
 reserved_func_names = ['print_int', 'print_bool', 'print_str', 'print_str',
@@ -49,7 +47,7 @@ def replace_struct_inits(tokens: list[Token]) -> list[Token]:
                 field_count = len(struct["fields"])
                 new_tokens.pop()
                 new_tokens.append(Token(None, "OPERATOR", "="))
-                new_tokens.append(Token(None, "IDENTIFIER", "array"))
+                new_tokens.append(Token(None, "IDENTIFIER", "_malloc"))
                 new_tokens.append(Token(None, "PARENTHESIS", "("))
                 new_tokens.append(Token(None, "INT_LITERAL", f"{field_count}"))
                 new_tokens.append(Token(None, "IDENTIFIER", ")"))
@@ -63,14 +61,12 @@ def replace_struct_inits(tokens: list[Token]) -> list[Token]:
 
     return new_tokens
 
-
 def replace_struct_refereces_by_the_index(tokens: list[Token]) -> list[Token]:
     new_tokens = []
 
     i=0
     while i < len(tokens):
         if tokens[i].text == "->":
-            #print(tokens[i-1], tokens[i], tokens[i+1])
             type = tokens[i-1].text.strip()
             field = tokens[i+1].text.strip()
             for struct in custom_types:
@@ -121,6 +117,23 @@ def rename_str_type(source_code: str) -> str:
     
     return source_code.replace(": Str", ": String")
 
+def do_rename_variable_words(word: str, replacement: str, source_code: str) -> str:
+    blocks = source_code.split("\n")
+    for block in blocks:
+        block = block.strip()
+
+        if block.startswith(word):
+            var_name = block.replace(word, "")
+            new_var_name = replacement + var_name.split(" ")[0]
+            occurence = f"{block.split(' ')[1]} {block.split(' ')[2]} "
+            source_code = source_code.replace(occurence, new_var_name)
+
+    return source_code
+
+def rename_variable_words(source_code: str) -> str:
+    source_code = do_rename_variable_words("var var ", "v_ar", source_code)
+    source_code = do_rename_variable_words("var while ", "w_hile", source_code)
+    return source_code
 
 def check_func_name_validity(name: str):
     if name in reserved_func_names:
@@ -145,7 +158,6 @@ def remove_comments(tokens: list[Token]) -> list[Token]:
 
         new_tokens.append(token)
     return new_tokens
-
 
 def rename_variables(tokens: list[Token]) -> list[Token]:
     i=0
@@ -184,13 +196,17 @@ def pickup_functions(source: str) -> list[list[SubProgram], int]:
     This function has also parsing properties.
     """
 
-    tokens = Tokenizer(source).tokenize_with_lineno(source, 1)
+    # handle if reserved words in functions
+    for word in Tokenizer.words:
+        source = source.replace(f"{word}_", f"f{word}_")
+    
+    tokens = Tokenizer().tokenize_with_lineno(source, 1)
         
     new_tokens = []
     for key, value in tokens.items():
         last_key = 0
         for token in value:
-            new_tokens.append(Token(key, Tokenizer().resolve_type(token), token.strip()))
+            new_tokens.append(Token(key, Tokenizer().solve_type(token), token.strip()))
             last_key = key
         new_tokens.append(Token(last_key+1, None, "None"))
     tokens = new_tokens
@@ -337,14 +353,17 @@ def add_semidots(tokens: list[Token]) -> list[Token]:
     return new_tkn_list
 
 def is_custom_type(_type: str) -> bool:
-    # check if custom type
+    """ check if custom type """
+
     global custom_types
     for type in custom_types:
         if type.__str__() == str(_type):
             return True
     return False
 
-def resolve_type(token: Token | str | int | bool, lineno: int = None) -> Type:
+def solve_type(token: Token | str | int | bool, lineno: int = None) -> Type:
+    """ Solve token's type. """
+
     if type(token) != Token:
         #Create mock token
         token = Token(lineno, None, str(token).lower())
@@ -369,6 +388,8 @@ def not_contains_equal_operator(tokens: list[Token]) -> bool:
     return False
 
 def add_toplevel_context(tokens: list[Token]) -> list[Token]:
+    """ Add the top contexts for source code """
+
     brace_begin = Token(None, "BRACE", "{")
     brace_end = Token(None, "BRACE", "}")
 
@@ -382,6 +403,16 @@ def add_toplevel_context(tokens: list[Token]) -> list[Token]:
     return new_tkn_list
 
 def add_compare_operator(tokens: list[Token]) -> list[Token]:
+    """ 
+    Adds a compare operator in case of such as
+
+    if is_prsedident(trump) then { ..... }
+
+    =>
+
+    if is_prsedident(trump) == true then { ..... }
+    
+    """
     new_tkn_list = []
 
     i=0

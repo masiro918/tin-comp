@@ -14,19 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import sys
-sys.path.append('../')
+from compiler_exception import CompilerException
 
-from src.compiler.compiler_exception import CompilerException
-
-from src.compiler.globls import var_names, custom_types
-from src.compiler.optimizer import (
+from frontend.globls import var_names
+from frontend.optimizer import (
     eliminate_undefined_vars_in_load_insts,
     eliminate_double_copy_operations,
     put_registers
 )
 
-from src.structs._ast import (
+from structs._ast import (
     Expression, 
     Literal, 
     Identifier, 
@@ -44,7 +41,7 @@ from src.structs._ast import (
     String
 )
 
-from src.structs.ir import *
+from structs.ir import *
 
 reserved_identifiers = ['true', 'false']
 reserved_names = ['begin','end','str', 'int', 
@@ -53,7 +50,7 @@ reserved_names = ['begin','end','str', 'int',
                   'fun', 'continue', 'break', 'return',
                   'true', 'false', 'var']
 
-def generate_ir(root_expr: Expression, params: list[str] | None = None, optimizations = True) -> list[Instruction]:
+def generate_ir(root_expr: Expression, params: list[str] | None = None, optimizations = True, tok_id: None | int = None) -> list[Instruction]:
     created_var = ""
 
     def new_var() -> IRVar:
@@ -286,7 +283,7 @@ def generate_ir(root_expr: Expression, params: list[str] | None = None, optimiza
         ins = eliminate_undefined_vars_in_load_insts(ins)
         ins = eliminate_double_copy_operations(ins)
 
-        # IMPORTANT: this brokes the standard of compiler design: IR should be abstract, but this
+        # IMPORTANT: this brokes the standard of compiler construction design: IR should be abstract, but this
         # proposes that the target platform is x86_64
         ins = put_registers(ins)
     return ins

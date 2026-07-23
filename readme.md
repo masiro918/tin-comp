@@ -1,8 +1,8 @@
 # TinComp - A Compiler for simple programming language
 
-This project is a compiler for a simple high-level programming language resembling the C language. The compiler includes both a frontend and a backend, as well as a type checker. The compilation process produces binary executables runnable on the AMD64 instruction set architecture in a GNU/Linux environment. The compiler works with the Python interpreter (v3.10) without using any libraries outside Python’s standard library or any other dependencies.
+This project is a compiler for a simple imperative and recursive programming language resembling the C language. The compiler includes both a frontend (e.g. parser, simple type checking) and a backend (assembly code generation). The compilation process produces binary executables runnable on the AMD64 instruction set architecture in a GNU/Linux environment using AMD64 System V Calling Convention. The compiler works with the CPython interpreter (v3.10) without using any libraries outside Python’s standard library or any other dependencies in the software distribution.
 
-The compiler and the programming language largely follow the practices and principles introduced in the course materials of the University of Helsinki’s *Compilers* course \[1].
+Despite of some different implement strategies and choices, the compiler and the programming language largely follow the practices and principles introduced in the course materials of the University of Helsinki’s *Compilers* course \[1].
 
 ## 0. Introduction
 
@@ -47,7 +47,7 @@ And more "cosmetic" todos:
 
 The compilation process is staged. After each stage, a new processed result is produced from the previous stage’s output. At a high level, the compilation process can be viewed as two-phase. The first phase converts the source code into an *intermediate representation* (IR), which in the second phase is translated into AMD64 assembly using AT\&T syntax. The resulting assembly code is assembled into an object file using the system’s default assembler.
 
-Function call parameters are limited. The compiler does not use the stack to handle "additional" parameters like Linux Calling Convention.
+Function call parameters are limited. The compiler does not use the stack to handle "additional" parameters like System V AMD64 Calling Convention.
 
 More detailed information about technical solutions of the compiler can be found under the doc directory.
 
@@ -55,35 +55,51 @@ More detailed information about technical solutions of the compiler can be found
 
 The stages of the compilation process are listed below:
 
-1.  Tokenizer (`tokenizer.py`)
+**Preprocessing**
+
+0.	Detects the functions and struct definitions in the code and parses these expression.
+
+**Frontend**
+1.  Tokenizer
     - some desugaring
-2.  Parser (`parser.py`)
+2.  Parser
     *   before actual parsing, the token stream from the tokenizer is processed by desugars
-3.  Type checker (`type_checker.py`)
-4.  IR generator (`ir_generator.py`)
-    - some very basic and common optimizations
-5.  Assembly generator (`asm_generator.py`)
-    - some very basic and common optimizations
+3.  Type checker
+4.  IR generator
+    - some very basic and common optimizations 
+
+**Backend**
+
+5. Assembly generator (`asm_generator.py`)
+   - some very basic and common optimizations
 
 ### 1.2 Intermediate Representation (IR)
 
-The intermediate representation is text-based and can therefore be viewed and edited using regular text editors. The IR has a small set of instructions. Each instruction can have up to three parameters.
+The intermediate representation has a small set of instructions. Each instruction can have up to three parameters.
 
 *   `LoadIntConst(<const[Int]>, <var[]>)`
 *   `LoadBoolConst(<const[Bool]>, <var[]>)`
 *   `Call(<operation[function|op_code]>, <list_params>, <return_var[]>)`
 *   `Jump(<label[]>)`
 *   `CondJump(<var|const>, <label[]>)`
+*	`Ret()`
 
 Labels are expressed as strings. They begin either with `L` or `.L`.
 
 ## 2. Usage
 
-The software needs Python version >= 3.11 and GNU/Linux system e.g. Ubuntu distribution to working. No other dependencies needed. If you want to use the testing tools, install
+The software needs Python version >= 3.11 and GNU/Linux system e.g. Ubuntu distribution to working. No other dependencies needed. If you want to use the testing tools and other dependencies needed to build the software, install by using **pip**
 ```
-pip install pytest
-pip install coverage
+pip install -r dev-requirements.txt
 ```
+
+To build the software:
+
+```
+./make_prod_build.sh
+```
+
+This script creates executable and other files needed in the production environment into directory **src/dist/main**
 
 ### 2.1. How to use the compiler?
 
@@ -91,7 +107,9 @@ Programs are compiled into executable binary files by running the script `compil
 
     ./compile <source file name> <object or asm file name> [-S] 
 
-To compile without any optimizations, plase use -O0 flag. (Please note, that you cannot not use both tags on the same time (-S and -O0)!)
+If you use the production version
+
+    ./tincomp <source file name> <object or asm file name> [-S] 
 
 A quick guide to the programming language can be found in the `doc` directory.
 
@@ -190,11 +208,11 @@ begin();
 **Example 4 illustrating language features: (strucs, string, arrays):**
 ```
 fun get_presidents_country_name(president): Str {
-    return get(get(president, Presidentti->valtio), Valtio->nimi);
+    return read_long(read_long(president, Presidentti->valtio), Valtio->nimi);
 }
 
 fun get_presidents_country_population_count(president): Int {
-	return get(get(president, Presidentti->valtio), Valtio->asukkaiden_lkm);
+	return read_long(read_long(president, Presidentti->valtio), Valtio->asukkaiden_lkm);
 }
 
 fun print_president_information(president) {
@@ -203,57 +221,46 @@ fun print_president_information(president) {
 	print_str2(valtio_nimi); print_str2(" asukkaita "); print_int(valtio_asukkaita);
 }
 
-// Define the data structure Valtio and Presidentti
+
 define struct Valtio = { nimi, asukkaiden_lkm };
 define struct Presidentti = { valtio, nimi, syntymavuosi };
 
-// Create array for the presidents
 var presidents = array(2);
 
 var suomi = New(Valtio);
 var usa = New(Valtio);
 
-// set the struct fields
-set(suomi, Valtio->asukkaiden_lkm, 5500000);
-set(suomi, Valtio->nimi, "Suomi");
-set(usa, Valtio->asukkaiden_lkm, 331449281);
-set(usa, Valtio->nimi, "Amerikan yhdysvallat");
+write_long(suomi, Valtio->asukkaiden_lkm, 5500000);
+write_long(suomi, Valtio->nimi, "Suomi");
+write_long(usa, Valtio->asukkaiden_lkm, 331449281);
+write_long(usa, Valtio->nimi, "Amerikan yhdysvallat");
 
 var stubb = New(Presidentti);
 var trump = New(Presidentti);
 
-set(stubb, Presidentti->valtio, suomi);
-set(stubb, Presidentti->nimi, "Stubb");
-set(stubb, Presidentti->syntymavuosi, 1968);
+write_long(stubb, Presidentti->valtio, suomi);
+write_long(stubb, Presidentti->nimi, "Stubb");
+write_long(stubb, Presidentti->syntymavuosi, 1968);
 
-// put the created struct to index 0
 set(presidents, 0, stubb);
 
-// set the struct fields
-set(trump, Presidentti->valtio, usa);
-set(trump, Presidentti->nimi, "Trump");
-set(trump, Presidentti->syntymavuosi, 1946);
+write_long(trump, Presidentti->valtio, usa);
+write_long(trump, Presidentti->nimi, "Trump");
+write_long(trump, Presidentti->syntymavuosi, 1946);
 
-// put the created struct to index 1
 set(presidents, 1, trump);
 
-var i: Int = 0; 
-while i < 2 do {	
+var i = 0; while i < 2 do {	
 	var president = get(presidents, i);
-	
 	print_president_information(president);
 	
-	if (get(president, Presidentti->syntymavuosi) == 1968) 
-			or 
-	   (get(president, Presidentti->syntymavuosi) == 1946) then 
-	{
-		print_str2(str_cat("Presidentin ", get(president, Presidentti->nimi)));
-		print_str2(str_cat(" syntymävuosi on ", int_to_str(get(president, Presidentti->syntymavuosi))));
+	if (read_long(president, Presidentti->syntymavuosi) == 1968) or (read_long(president, Presidentti->syntymavuosi) == 1946)
+	then {
+		print_str2(str_cat("Presidentin ", read_long(president, Presidentti->nimi)));
+		print_str2(str_cat(" syntymävuosi on ", int_to_str(read_long(president, Presidentti->syntymavuosi))));
 		print_str(" ");
 	}
-	
-	i = i + 1;
-}
+i = i + 1;}
 ```
 ***
 

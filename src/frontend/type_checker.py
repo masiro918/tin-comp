@@ -14,15 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import sys
-sys.path.append("../")
-
-from src.compiler.compiler_exception import CompilerException
-from src.compiler.misc import resolve_type, is_custom_type
+from compiler_exception import CompilerException
+from frontend.misc import solve_type, is_custom_type
+from frontend.globls import externs
 
 from typing import Any
 
-from src.structs._ast import (
+from structs._ast import (
     Expression,
     Type
 )
@@ -37,9 +35,9 @@ global line_in_binop
 line_in_binop = -1
 
 def exists(name: Any):
-    """ Checks that variable is already declared. """
+    """ Checks if variable is already declared. """
 
-    if resolve_type(name, line_in_binop).__str__() != 'Str':
+    if solve_type(name, line_in_binop).__str__() != 'Str':
         return False
     try:
         _ = variables[str(name)]
@@ -52,7 +50,12 @@ def must_be_int(a: Any, b: Any):
     Checks that a and b must be type of an integer. 
     """
     
-    if a.__str__() != "Int" or b.__str__() != "Int": return False
+    if a.__str__() != "Int" or b.__str__() != "Int": 
+        if a.__str__() == "Any" and b.__str__() == "Int":
+            return True
+        if a.__str__() == "Int" and b.__str__() == "Any":
+            return True
+        return False
     return True
 
 def return_int_type(a: Any, b: Any):
@@ -66,10 +69,13 @@ def return_bool_type(a: Any, b: Any):
     global line_in_binop
 
     if a.__str__() != b.__str__():
+        if a.__str__() == "Any" or b.__str__() == "Any":
+            print("Warning: you are comparing value of type is any in line")
+            return Type('Bool')
         raise CompilerException(f"Line {line_in_binop}: Type error! {a.__str__()} {b.__str__()} expected same types")
     return Type('Bool')
 
-def typecheck(node: Expression) -> Type:
+def typecheck(node: Expression) -> Type | Any:
     """ Checks the a type validity of node. Node is an ast. """
 
     global variables
@@ -77,10 +83,10 @@ def typecheck(node: Expression) -> Type:
     global line_in_binop
     match node.__class__.__name__:
         case 'Literal':
-            return resolve_type(node.value, line_in_binop)
+            return solve_type(node.value, line_in_binop)
         
         case 'Identifier':
-            return resolve_type(node.name, line_in_binop)
+            return solve_type(node.name, line_in_binop)
 
         case 'BinaryOp':
             a = node.left
@@ -139,6 +145,9 @@ def typecheck(node: Expression) -> Type:
                 if _type.__str__() == "Int":
                     pass
                 else:
+                    if _type.__str__() == "Any":
+                        variables[str(name)] = Type("Any")
+                        return Type("Any")
                     if _type.__str__() != t.__str__(): 
                         raise CompilerException(f"Line {name.line}: illegal value for {node.type.__str__()} type")
 
@@ -218,6 +227,9 @@ def typecheck(node: Expression) -> Type:
             if node.func_name == "create_empty_str": 
                 node.func_type = 'String'
                 return Type('String')
+            if node.func_name == "str_clone":
+                node.func_type = 'String'
+                return Type('String')
             
             if node.func_name == "pow2": 
                 node.func_type = 'Int'
@@ -230,6 +242,15 @@ def typecheck(node: Expression) -> Type:
                 node.func_type = 'Int'
                 return Type('Int')
             if node.func_name == "array": 
+                node.func_type = 'Int'
+                return Type('Int')
+            if node.func_name == "_malloc": 
+                node.func_type = 'Int'
+                return Type('Int')
+            if node.func_name == "write_long": 
+                node.func_type = 'Int'
+                return Type('Unit')
+            if node.func_name == "read_long": 
                 node.func_type = 'Int'
                 return Type('Int')
 
@@ -246,6 +267,10 @@ def typecheck(node: Expression) -> Type:
             if node.func_name == "Str":
                 return Type('String')
             
+            global externs
+            if node.func_name in externs:
+                return Type('Int')
+                        
             raise CompilerException(f"Line {node.line}: Unknown function name: " + str(node.func_name))
             
         case 'Block':

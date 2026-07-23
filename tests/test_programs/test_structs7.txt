@@ -1,0 +1,57 @@
+fun print_kirja(kirja) {
+	define struct KIRJA { nimi, painovuosi, hyllypaikka };
+	print_str2("Kirjan nimi on ");
+	print_str2(read_long(kirja, KIRJA->nimi));
+	print_str2(" painovuosi ");
+	print_str2(int_to_str(read_long(kirja, KIRJA->painovuosi)));
+	print_str2(" ja hyllypaikka ");
+	print_str(int_to_str(read_long(kirja, KIRJA->hyllypaikka)));
+}
+
+fun begin() {
+	define struct KIRJA = { nimi, painovuosi, hyllypaikka };
+	
+	var kirjat = array(10);
+	var i: Int = 0;
+	
+	while i < 10 do {
+		var _nimi = create_empty_str();
+		var _painovuosi: Int = -1;
+		var _hyllypaikka: Int = -1;
+		
+		print_str("type q to exit");
+		
+
+		print_str("Anna kirjan nimi: ");
+
+		var _nimi: Str = input_str();
+		if str_cmp(_nimi, "q") then { break };
+
+		print_str("Anna kirjan painovuosi: ");
+		_painovuosi = str_to_int(input_str());
+
+		print_str("Anna kirjan hyllypaikka: ");
+		_hyllypaikka = str_to_int(input_str());
+
+		var kirja = New(KIRJA);
+
+		write_long(kirja, KIRJA->nimi, str_clone(_nimi)); 
+		write_long(kirja, KIRJA->painovuosi, _painovuosi); 
+		write_long(kirja, KIRJA->hyllypaikka, _hyllypaikka);
+		
+		set(kirjat, i, kirja);
+		
+		i = i + 1;
+	}
+	
+	var n: Any = i;
+	i = 0;
+	
+	while i < n do {
+		var kirja = get(kirjat, i);
+		print_kirja(kirja);
+		i = i + 1;
+	} 
+}
+
+begin();

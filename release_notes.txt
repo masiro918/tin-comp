@@ -1,3 +1,8 @@
+v0.9.11 - 23.7.2026
+
+Updated documentation, structures uses heap memory (emdedded into executables), fixed bug with strings (special characters).
+	<Matias Siro>
+--------------------------------------------------------------------
 v0.9.10 - 8.6.2026
 
 Please note the previous release annoucement for version numbering!

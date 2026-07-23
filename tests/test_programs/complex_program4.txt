@@ -1,0 +1,265 @@
+// IR Interpreter written in the custom programming language
+// This interpreter executes IR instructions
+
+/*
+ * Finds the location of the char in the string
+ */
+fun find_loc(string, find_char, i): Int {
+	while i < str_len(string) do {
+		var c = get_char_from_str(string, i);
+		
+		if str_cmp(c, find_char) then {
+			return i;
+		}
+		
+		i = i + 1;
+	}
+	
+	return -1;
+}
+
+/*
+ * Gets substring by splitting index start_idx
+ */
+fun get_substring(string, start_idx, end_char): Str {
+	var ret_str = create_empty_str();
+	
+	var i = start_idx;
+	while i < str_len(string) do {
+		var c = get_char_from_str(string, i);
+		
+		if str_cmp(c, end_char) then { return ret_str; }
+		
+		ret_str = str_cat(ret_str, c);
+		i = i + 1;
+	}
+	
+	return ret_str;
+}
+
+/*
+ * LoadIntConst op
+ */
+fun execute_load_int_const(inst, variables) {	
+	var ret_str: Str = create_empty_str();
+	
+	var i: Int = find_loc(inst, "(", i);	
+	var int_const = get_substring(inst, i + 1, " ");
+	
+	var temp_str = create_empty_str();
+	
+	i = i + 1;
+	i = find_loc(inst, " ", i);
+		
+	temp_str = create_empty_str();
+	i = i + 1;
+	while i < (str_len(inst) - 1) do {
+		var c = get_char_from_str(inst, i);
+		temp_str = str_cat(temp_str, c);	
+		i = i + 1;
+	}
+	
+	var dest = str_cat(temp_str, create_empty_str());
+	
+	print_str("Instruction: loadIntConst");
+	print_str(str_cat("  value: ", int_const));
+	print_str(str_cat("  dest_var: ", dest));
+}
+
+/*
+ * Call op
+ */
+fun execute_call_op(inst, variables) {
+	var ret_str: Str = create_empty_str();
+	
+	var i: Int = 0;
+	var int_const = create_empty_str();
+	
+	i = find_loc(inst, "(", i);
+	
+	var params = create_empty_str();
+	var operator = create_empty_str();
+	
+	i = i + 1;
+	
+	var operator_found = false;
+	
+	while i < str_len(inst) do {
+		var c = get_char_from_str(inst, i);
+		
+		if operator_found == false then {
+			if str_cmp(c, " ") then {
+				operator_found = true;
+				i = i + 1;
+				continue;
+			}
+			
+			operator = str_cat(operator, c);
+		}
+		
+		if operator_found then {
+			if str_cmp(c, "<") then {
+				i = i + 1;
+				continue;
+			}
+			if str_cmp(c, ">") then { break; }
+			
+			params = str_cat(params, c);
+		}
+		
+		i = i + 1;
+	}
+	
+	var ret_var = create_empty_str();
+	
+	i = i + 2;
+	while i < (str_len(inst) - 1) do {		
+		var c = get_char_from_str(inst, i);
+		ret_var = str_cat(ret_var, c);
+		i = i + 1;
+	}
+	
+	print_str("Call");
+	print_str(str_cat("  operator: ", operator));
+	print_str(str_cat("  params: ", params));
+	print_str(str_cat("  ret_var: ", ret_var));
+}
+
+fun execute_condjump_op(inst, variables) {
+	var i: Int = find_loc(inst, "(", 0);	
+	var ir_var = create_empty_str();
+	
+	i = i + 1;
+	ir_var = get_substring(inst, i, " ");
+	i = find_loc(inst, " ", i);
+	
+	i = i + 1;
+	var dest = get_substring(inst, i, ")");	
+	
+	print_str("CondJump");
+	print_str(str_cat("  ir_var: ", ir_var));
+	print_str(str_cat("  dest: ", dest));
+}
+
+fun execute_jump_op(inst, variables) {	
+	var i: Int = 0;
+	var int_const = create_empty_str();
+	var loc_int_const = -1;
+	
+	i = find_loc(inst, "(", i);	
+	i = i + 1;
+	var dest = get_substring(inst, i, ")");
+	
+	print_str("Jump");
+	print_str(str_cat("  dest: ", dest));
+}
+
+fun parse_inst(insts, idx): Str {
+	var inst = get(insts, idx);	
+	var i: Int = 0;
+	var ret_str: Str = get_substring(inst, i, "(");	
+	return ret_str;
+}
+
+/*
+ * Adds an instruction into the array.
+ * Returns the updated lenght of the program.
+ */
+fun add_instruction(inst, insts, idx) {
+	set(insts, idx, inst);
+	return idx + 1;
+}
+
+/*
+ *  Run the IR program
+ */
+fun run_program(insts, insts_count, storage_vars) {
+    var pc: Int = 0;
+    while pc < insts_count do {
+		var instruction = get(insts, pc);
+        var inst: Str = parse_inst(insts, pc);
+        
+        if str_cmp(inst, "loadIntConst") then {
+			execute_load_int_const(instruction, storage_vars);
+			pc = pc + 1;
+			continue;
+		}
+		
+		if str_cmp(inst, "Call") then {
+			execute_call_op(instruction, storage_vars);
+			pc = pc + 1;
+			continue;
+		}
+		
+		if str_cmp(inst, "Jump") then {
+			execute_jump_op(instruction, storage_vars);
+			pc = pc + 1;
+			continue;
+		}
+		
+		if str_cmp(inst, "CondJump") then {
+			execute_condjump_op(instruction, storage_vars);
+			pc = pc + 1;
+			continue;
+		}
+		
+		// it's a label
+        print_str(str_cat("    ", inst));
+        
+        pc = pc + 1;
+    }
+    print_str("Program execution completed.");
+}
+
+/*
+ *  Main program
+ */
+fun begin() {    
+    // Initilize the parameters
+    // Instruction storage
+	var insts = array(999);
+	var insts_count: Int = 0;
+	
+	// Data storage
+	var storage_vars = array(999);
+    
+    // LoadIntConst(7, x0)  // x = 7
+    insts_count = add_instruction("loadIntConst(7 x1)", insts, insts_count);
+    
+    // LoadIntConst(5, tmp5)  // temp = 5
+    insts_count = add_instruction("loadIntConst(5 tmp5)", insts, insts_count);
+    
+    // Call(>, [x0, tmp5], x2)  // result = x > 5
+    insts_count = add_instruction("Call(> <x1 tmp5> x2)", insts, insts_count);
+    
+    // CondJump(2, "then_label")
+    insts_count = add_instruction("CondJump(x2 _label_then)", insts, insts_count);
+        
+    // Jump("end_label")
+    insts_count = add_instruction("Jump(_label_end)", insts, insts_count);
+    
+    // then block
+    insts_count = add_instruction("_label_then", insts, insts_count);
+    insts_count = add_instruction("Call(print_str <\Hello world\> x0)", insts, insts_count);
+    insts_count = add_instruction("Jump(_label_end)", insts, insts_count);
+    
+    // end
+    insts_count = add_instruction("_label_end", insts, insts_count);
+    insts_count = add_instruction("Call(print_str <\Bye world\> x0)", insts, insts_count);
+    
+    // Run the program
+    print_str("IR Interpreter for Custom language");
+    print_str("==================================");
+    print_str(create_empty_str());
+    print_str2("Running program ");
+    print_str(str_cat("with instructions count is ", int_to_str(insts_count)));
+    run_program(insts, insts_count, storage_vars);
+    
+    insts_count = 3;
+    if (insts_count / 3) != 0 then {
+		print_str("hahaa");
+	}
+}
+
+// Start the interpreter
+begin();

@@ -17,18 +17,22 @@ limitations under the License.
 import sys
 import os
 
-sys.path.append("../")
+from compiler_exception import CompilerException
 
-from src.compiler.compiler_exception import CompilerException
+from frontend.tokenizer import Tokenizer
+from frontend.parser import Parser
+from frontend.type_checker import typecheck, userdefined_functions, variables
+from frontend.ir_generator import generate_ir
+from frontend.misc import (
+    pickup_functions, 
+    rename_str_type, 
+    handle_braces_in_function_definitions,
+    rename_variable_words
+)
+from backend.asm_generator import generate_asm, data
+from backend.backend_optimizer import do_optimize
 
-from src.compiler.optimizer import do_optimize
-from src.compiler.tokenizer import Tokenizer
-from src.compiler.parser import Parser
-from src.compiler.type_checker import typecheck, userdefined_functions, variables
-from src.compiler.ir_generator import generate_ir
-from src.compiler.asm_generator import generate_asm
-from src.compiler.misc import pickup_functions, rename_str_type, handle_braces_in_function_definitions
-from src.structs._ast import SubProgram
+from structs._ast import SubProgram
 
 def compile_module(module: SubProgram, startpoint, is_main_fun = False, optimizations = True) -> str:
     """ Compiles a single 'module' (actually function). Return asm. """
@@ -37,11 +41,11 @@ def compile_module(module: SubProgram, startpoint, is_main_fun = False, optimiza
     fun = module.tokens
     tokens = ' '.join(fun)
     tokens = tokens.replace("None", "\n")
-    
+    tokens = rename_variable_words(tokens)
     tokens = tokenizer.generate_tokens(tokens, startpoint)
     ast = Parser.parse(tokens)
 
-    # Let's resovle type of the moudle's parameters
+    # Let's resovle type of the module's parameters
     i=0
     while i < len(module.params):
         if module.params[i] == ":":
@@ -58,11 +62,11 @@ def compile_module(module: SubProgram, startpoint, is_main_fun = False, optimiza
         global userdefined_functions
         userdefined_functions.append([module.name, module.ret_type])
         if not optimizations:
-            return generate_asm(ir, module.name)
-        return do_optimize(generate_asm(ir, module.name))
+            return generate_asm(ir, module.name).replace("upperl" + str(Tokenizer.tok_id), "L")
+        return do_optimize(generate_asm(ir, module.name).replace("upperl" + str(Tokenizer.tok_id), "L"))
     if not optimizations: 
-        return generate_asm(ir, "main")
-    return do_optimize(generate_asm(ir, "main"))
+        return generate_asm(ir, "main").replace("upperl" + str(Tokenizer.tok_id), "L")
+    return do_optimize(generate_asm(ir, "main").replace("upperl" + str(Tokenizer.tok_id), "L"))
 
 def compile_modules(source: str, optimizations = True):
     """ 
@@ -86,10 +90,10 @@ def compile_modules(source: str, optimizations = True):
         asm_file = asm_file + compile_module(module, module.lineno, False, optimizations)
     
     # and the main function
-    asm_file = asm_file + compile_module(modules[-1], startpoint, True, optimizations)
+    asm_file = asm_file + compile_module(modules[-1], startpoint, True, optimizations)    
     return asm_file
 
-def main(source_file: str, target_file = "a.out", base_dir = "../", asm_output_file = False, optimizations = True):
+def main(source_file: str, target_file = "a.out", base_dir = "", asm_output_file = False, optimizations = True):
     try:
         source = ""
         with open(source_file) as f:
@@ -97,13 +101,13 @@ def main(source_file: str, target_file = "a.out", base_dir = "../", asm_output_f
         
         asm_output = compile_modules(source, optimizations)    
 
-        # links the stdlib (not a libc!)
+        # links the stdlib (not libc!)
         lib = ""
         if asm_output_file == False:
             f=None
-            if base_dir == None: f=open("../src/stdlib/stdlib.s")
+            if base_dir == None: f=open("stdlib.s")
             else:
-                f=open(base_dir + "stdlib/stdlib.s")
+                f=open(base_dir + "stdlib.s")
             lib=lib+f.read()
             f.close()
         f=open("tmp.s", "w")
@@ -112,24 +116,18 @@ def main(source_file: str, target_file = "a.out", base_dir = "../", asm_output_f
 
         if asm_output_file: os.system(f"mv tmp.s {target_file}")
         else:
-            os.system(f"c99 -o {target_file} tmp.s")
-            os.system("rm tmp.s")
+            os.system(f"c99 -no-pie -mcmodel=large -o {target_file} tmp.s")
+            os.remove("tmp.s")
     except Exception as e:
         raise e
 
 if __name__ == '__main__':
     try:
         if len(sys.argv) > 2:
-            if len(sys.argv) > 4 and sys.argv[3] == "-O0" and sys.argv[4] == "-S":
-                main(sys.argv[1], sys.argv[2], None, True, False)
-            else:
-                if len(sys.argv) > 3 and sys.argv[3] == "-S":
-                    main(sys.argv[1], sys.argv[2], None, True)
-                elif len(sys.argv) > 3 and sys.argv[3] == "-O0":
-                    main(sys.argv[1], sys.argv[2], None, False, False)
-                else: main(sys.argv[1], sys.argv[2], None)
-        else:
-            main(sys.argv[1])
+            if len(sys.argv) > 3 and sys.argv[3] == "-S":
+                main(sys.argv[1], sys.argv[2], None, True)
+            else: main(sys.argv[1], sys.argv[2], None)
+        else: main(sys.argv[1])
     except CompilerException as e:
         print(str(e))
         sys.exit(1)

@@ -1,4 +1,4 @@
-/**
+/*
 Copyright (C) 2026 Matias Siro
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
@@ -20,51 +20,24 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	.globl	pow2
 	.type	pow2, @function
 pow2:
-	
 	pushq	%rbp
 	movq	%rsp, %rbp
 	subq    $32, %rsp    # reserve 32 bytes for locals
-
-	# implementation startrs
 	xorq	%rax, %rax
 	movq	%rdi, %rax
 	imulq	%rax, %rax
-	
-	# implementation ends
 	movq   %rbp, %rsp
     popq   %rbp
 	ret
-
-.LL10:
-	.text
-	.globl power
-	.type power, @function
-power:
-	
-	pushq	%rbp
-	movq	%rsp, %rbp
-	subq	$32, %rsp	# reserve 32 bytes for locals
-
-	# call	pow@PLT
-
-	# implementation ends
-	movq   %rbp, %rsp
-    popq   %rbp
-	ret
-
 .input:
 	.string	"%d\n"
 	.text
 	.globl print_int
 	.type print_int, @function
-
 print_int:
-	
 	pushq  %rbp
     movq   %rsp, %rbp
     subq   $32, %rsp    # reserve 32 bytes for locals
-
-	# implementation startrs
 	movl %edi, -4(%rbp)
 	movl -4(%rbp), %eax
 	movl %eax, %esi
@@ -72,14 +45,9 @@ print_int:
 	movq %rax, %rdi
 	movl $0, %eax
 	call printf@PLT
-
-	# implementation ends
 	movq   %rbp, %rsp
     popq   %rbp
 	ret
-	
-
-
 .LC0:
 	.string	"true"
 .LC1:
@@ -88,12 +56,9 @@ print_int:
 	.globl	print_bool
 	.type	print_bool, @function
 print_bool:
-	
 	pushq	%rbp
 	movq	%rsp, %rbp
 	subq	$32, %rsp	# reserve 32 bytes for locals
-
-	# implementation starts
 	movl	%edi, -4(%rbp)
 	cmpl	$1, -4(%rbp)
 	jne	.LABEL2
@@ -105,13 +70,10 @@ print_bool:
 	leaq	.LC1(%rip), %rax
 	movq	%rax, %rdi
 	call	puts@PLT
-	
 .END:
-	# implementation ends
 	movq   %rbp, %rsp
     popq   %rbp
 	ret
-
 	.text
 	.globl	ptr
 	.bss
@@ -123,15 +85,19 @@ ptr:
 	.globl	__mem
 	.align 32
 	.type	__mem, @object
-	.size	__mem, 4294967296
+	.size	__mem, 1073709324
 __mem:
-	.zero	4294967296
+	.zero	1073709324
+	
+	.local	heap
+	.comm	heap,65536,32
+	.local	next_free_index
+	.comm	next_free_index,8,8
 	.text
 	.globl	str_len
 	.type	str_len, @function
 str_len:
 .L_FB0:
-	
 	pushq	%rbp
 	movq	%rsp, %rbp
 	movl	%edi, -20(%rbp)
@@ -158,9 +124,9 @@ str_len:
 	.type	str_cmp, @function
 str_cmp:
 .L_FB1:
-	
 	pushq	%rbp
 	movq	%rsp, %rbp
+	subq	$64, %rsp	# reserve 32 bytes for locals
 	pushq	%rbx
 	subq	$24, %rsp
 	movl	%edi, -28(%rbp)
@@ -217,7 +183,6 @@ str_cmp:
 	.type	str_cat, @function
 str_cat:
 .L_FB2:
-	
 	pushq	%rbp
 	movq	%rsp, %rbp
 	movl	%edi, -20(%rbp)
@@ -286,7 +251,6 @@ str_cat:
 	.type	print_str, @function
 print_str:
 .L_FB3:
-	
 	pushq	%rbp
 	movq	%rsp, %rbp
 	subq	$32, %rsp
@@ -320,7 +284,6 @@ print_str:
 	.type	print_str2, @function
 print_str2:
 .L2_FB3:
-	
 	pushq	%rbp
 	movq	%rsp, %rbp
 	subq	$32, %rsp
@@ -350,9 +313,7 @@ print_str2:
 	.size	print_str2, .-print_str2
 	.globl	Str
 	.type	Str, @function
-Str:
-.L_FB4:
-	
+Str:	
 	pushq	%rbp
 	movq	%rsp, %rbp
 	movq	%rdi, -24(%rbp)
@@ -397,139 +358,130 @@ Str:
 	.section	.rodata
 .L_C0:
 	.string	"%d\n"
-	
-        .text
-        .globl  str_to_int
-        .type   str_to_int, @function
+	.text
+	.globl  str_to_int
+	.type   str_to_int, @function
 str_to_int:
-        
-        pushq   %rbp
-        movq    %rsp, %rbp
-        subq    $112, %rsp
-        movl    %edi, -100(%rbp)
-        movq    %fs:40, %rax
-        movq    %rax, -8(%rbp)
-        xorl    %eax, %eax
-        movl    -100(%rbp), %eax
-        movl    %eax, -88(%rbp)
-        movq    $0, -80(%rbp)
-        movq    $0, -72(%rbp)
-        movq    $0, -64(%rbp)
-        movq    $0, -56(%rbp)
-        movq    $0, -48(%rbp)
-        movq    $0, -40(%rbp)
-        movq    $0, -32(%rbp)
-        movq    $0, -24(%rbp)
-        movl    -100(%rbp), %eax
-        movl    %eax, %edi
-        call    str_len@PLT
-        movl    %eax, -84(%rbp)
-        movl    $0, -92(%rbp)
-        jmp     .L_02
+	pushq   %rbp
+	movq    %rsp, %rbp
+	subq    $112, %rsp
+	movl    %edi, -100(%rbp)
+	movq    %fs:40, %rax
+	movq    %rax, -8(%rbp)
+	xorl    %eax, %eax
+	movl    -100(%rbp), %eax
+	movl    %eax, -88(%rbp)
+	movq    $0, -80(%rbp)
+	movq    $0, -72(%rbp)
+	movq    $0, -64(%rbp)
+	movq    $0, -56(%rbp)
+	movq    $0, -48(%rbp)
+	movq    $0, -40(%rbp)
+	movq    $0, -32(%rbp)
+	movq    $0, -24(%rbp)
+	movl    -100(%rbp), %eax
+	movl    %eax, %edi
+	call    str_len@PLT
+	movl    %eax, -84(%rbp)
+	movl    $0, -92(%rbp)
+	jmp     .L_02
 .L_03:
-        movl    -100(%rbp), %eax
-        cltq
-        leaq    __mem(%rip), %rdx
-        movzbl  (%rax,%rdx), %eax
-        movb    %al, -93(%rbp)
-        movl    -92(%rbp), %eax
-        cltq
-        movzbl  -93(%rbp), %edx
-        movb    %dl, -80(%rbp,%rax)
-        addl    $1, -100(%rbp)
-        addl    $1, -92(%rbp)
+	movl    -100(%rbp), %eax
+	cltq
+	leaq    __mem(%rip), %rdx
+	movzbl  (%rax,%rdx), %eax
+	movb    %al, -93(%rbp)
+	movl    -92(%rbp), %eax
+	cltq
+	movzbl  -93(%rbp), %edx
+	movb    %dl, -80(%rbp,%rax)
+	addl    $1, -100(%rbp)
+	addl    $1, -92(%rbp)
 .L_02:
-        movl    -100(%rbp), %eax
-        cltq
-        leaq    __mem(%rip), %rdx
-        movzbl  (%rax,%rdx), %eax
-        testb   %al, %al
-        jne     .L_03
-        movl    -92(%rbp), %eax
-        addl    $1, %eax
-        cltq
-        movb    $0, -80(%rbp,%rax)
-        leaq    -80(%rbp), %rax
-        movq    %rax, %rdi
-        call    atoi@PLT
-        movq    -8(%rbp), %rdx
-        subq    %fs:40, %rdx
-        je      .L_05
-        call    __stack_chk_fail@PLT
+	movl    -100(%rbp), %eax
+	cltq
+	leaq    __mem(%rip), %rdx
+	movzbl  (%rax,%rdx), %eax
+	testb   %al, %al
+	jne     .L_03
+	movl    -92(%rbp), %eax
+	addl    $1, %eax
+	cltq
+	movb    $0, -80(%rbp,%rax)
+	leaq    -80(%rbp), %rax
+	movq    %rax, %rdi
+	call    atoi@PLT
+	movq    -8(%rbp), %rdx
+	subq    %fs:40, %rdx
+	je      .L_05
+	call    __stack_chk_fail@PLT
 .L_05:
-        leave
-        ret
-
-	
-        .text
-        .section        .rodata
+	leave
+	ret
+	.text
+	.section        .rodata
 .FORMAT:
 	.string "%d"
-        .text
-        .globl  int_to_str
-        .type   int_to_str, @function
+	.text
+	.globl  int_to_str
+	.type   int_to_str, @function
 int_to_str:
-        
-        pushq   %rbp
-        movq    %rsp, %rbp
-        subq    $64, %rsp
-        movl    %edi, -52(%rbp)
-        movq    %fs:40, %rax
-        movq    %rax, -8(%rbp)
-        xorl    %eax, %eax
-        movl    -52(%rbp), %edx
-        leaq    -32(%rbp), %rax
-        leaq    .FORMAT(%rip), %rcx
-        movq    %rcx, %rsi
-        movq    %rax, %rdi
-        movl    $0, %eax
-        call    sprintf@PLT
-        leaq    -32(%rbp), %rax
-        movq    %rax, %rdi
-        call    Str@PLT
-        movl    %eax, -36(%rbp)
-        movl    -36(%rbp), %eax
-        movq    -8(%rbp), %rdx
-        subq    %fs:40, %rdx
-        je      .LEND_3
-        call    __stack_chk_fail@PLT
+	pushq   %rbp
+	movq    %rsp, %rbp
+	subq    $64, %rsp
+	movl    %edi, -52(%rbp)
+	movq    %fs:40, %rax
+	movq    %rax, -8(%rbp)
+	xorl    %eax, %eax
+	movl    -52(%rbp), %edx
+	leaq    -32(%rbp), %rax
+	leaq    .FORMAT(%rip), %rcx
+	movq    %rcx, %rsi
+	movq    %rax, %rdi
+	movl    $0, %eax
+	call    sprintf@PLT
+	leaq    -32(%rbp), %rax
+	movq    %rax, %rdi
+	call    Str@PLT
+	movl    %eax, -36(%rbp)
+	movl    -36(%rbp), %eax
+	movq    -8(%rbp), %rdx
+	subq    %fs:40, %rdx
+	je      .LEND_3
+	call    __stack_chk_fail@PLT
 .LEND_3:
-        leave
-        ret
-
-
-
-        .globl  get_char_from_str
-        .type   get_char_from_str, @function
+	leave
+	ret
+	.globl  get_char_from_str
+	.type   get_char_from_str, @function
 get_char_from_str:
-        
-        pushq   %rbp
-        movq    %rsp, %rbp
-        subq    $32, %rsp
-        movl    %edi, -20(%rbp)
-        movl    %esi, -24(%rbp)
-        movq    %fs:40, %rax
-        movq    %rax, -8(%rbp)
-        xorl    %eax, %eax
-        movl    -20(%rbp), %edx
-        movl    -24(%rbp), %eax
-        addl    %edx, %eax
-        cltq
-        leaq    __mem(%rip), %rdx
-        movzbl  (%rax,%rdx), %eax
-        movb    %al, -10(%rbp)
-        leaq    -10(%rbp), %rax
-        movq    %rax, %rdi
-        call    Str@PLT
-        movl    %eax, -16(%rbp)
-        movl    -16(%rbp), %eax
-        movq    -8(%rbp), %rdx
-        subq    %fs:40, %rdx
-        je      .Lgcfs3
-        call    __stack_chk_fail@PLT
+	pushq   %rbp
+	movq    %rsp, %rbp
+	subq    $32, %rsp
+	movl    %edi, -20(%rbp)
+	movl    %esi, -24(%rbp)
+	movq    %fs:40, %rax
+	movq    %rax, -8(%rbp)
+	xorl    %eax, %eax
+	movl    -20(%rbp), %edx
+	movl    -24(%rbp), %eax
+	addl    %edx, %eax
+	cltq
+	leaq    __mem(%rip), %rdx
+	movzbl  (%rax,%rdx), %eax
+	movb    %al, -10(%rbp)
+	leaq    -10(%rbp), %rax
+	movq    %rax, %rdi
+	call    Str@PLT
+	movl    %eax, -16(%rbp)
+	movl    -16(%rbp), %eax
+	movq    -8(%rbp), %rdx
+	subq    %fs:40, %rdx
+	je      .Lgcfs3
+	call    __stack_chk_fail@PLT
 .Lgcfs3:
-        leave
-        ret
+	leave
+	ret
 	.section	.rodata
 .L_format:
 	.string	"%s"
@@ -538,7 +490,6 @@ get_char_from_str:
 	.type	input_str, @function
 input_str:
 .LFB8:
-	
 	pushq	%rbp
 	movq	%rsp, %rbp
 	subq	$160, %rsp
@@ -563,11 +514,9 @@ input_str:
 .L_exit:
 	leave
 	ret
-	
 	.globl	create_empty_str
 	.type	create_empty_str, @function
 create_empty_str:
-	
 	pushq	%rbp
 	movq	%rsp, %rbp
 	subq	$16, %rsp
@@ -587,39 +536,168 @@ create_empty_str:
 .L9_end:
 	leave
 	ret
-
+.global str_clone
+.type str_clone, @function
+str_clone:
+	pushq %rbp
+	movq %rsp, %rbp
+	subq $384, %rsp
+	movq %r12,-352(%rbp)
+	movq %r13,-360(%rbp)
+	movq %r14,-368(%rbp)
+	movq %r15,-376(%rbp)
+	movq %rdi, %r15
+	movq %r15, %rax
+	movq %rax, %rdi
+	callq str_len
+	movq %rax, -24(%rbp)
+	movq $0, -32(%rbp)
+	xor %rax, %rax
+	movq -24(%rbp), %rdx
+	cmpq -32(%rbp), %rdx
+	sete %al
+	cmpq $0, %rax
+	jne L_str_clone_3_IF
+	jmp L_str_clone_3_IF_END
+L_str_clone_3_IF:
+	callq create_empty_str
+	movq %rax, -48(%rbp)
+	movq -352(%rbp),%r12
+	movq -360(%rbp),%r13
+	movq -368(%rbp),%r14
+	movq -376(%rbp),%r15
+	movq -48(%rbp), %rax
+	movq %rbp, %rsp
+	popq %rbp
+	ret
+L_str_clone_3_IF_END:
+	callq create_empty_str
+	movq %rax, -64(%rbp)
+	movq $0, -72(%rbp)
+L_str_clone_5_WHIL_str_clone_E_START:
+	movq -72(%rbp), %rax
+	movq %rax, -80(%rbp)
+	movq %r15, %r12
+	movq %r12, %rdi
+	callq str_len
+	movq %rax, -88(%rbp)
+	xor %rax, %rax
+	movq -80(%rbp), %rdx
+	cmpq -88(%rbp), %rdx
+	setl %al
+	cmpq $0, %rax
+	jne L_str_clone_5_WHIL_str_clone_E
+	jmp L_str_clone_5_WHIL_str_clone_E_END
+L_str_clone_5_WHIL_str_clone_E:
+.L_str_clone__str_clone_6:
+	movq %r15, %rax
+	movq %rax, -104(%rbp)
+	movq -72(%rbp), %rax
+	movq %rax, -112(%rbp)
+	movq -104(%rbp), %rdi
+	movq -112(%rbp), %rsi
+	callq get_char_from_str
+	movq %rax, -128(%rbp)
+	movq -64(%rbp), %rax
+	movq %rax, -136(%rbp)
+	movq -128(%rbp), %rax
+	movq %rax, -144(%rbp)
+	movq -136(%rbp), %rdi
+	movq -144(%rbp), %rsi
+	callq str_cat
+	movq %rax, -64(%rbp)
+	movq -72(%rbp), %rax
+	movq %rax, -160(%rbp)
+	movq $1, -168(%rbp)
+	movq -160(%rbp), %rax
+	addq -168(%rbp), %rax
+	movq %rax, -72(%rbp)
+.L_str_clone__str_clone_6_END:
+	jmp L_str_clone_5_WHIL_str_clone_E_START
+L_str_clone_5_WHIL_str_clone_E_END:
+	movq -64(%rbp), %rax
+	movq %rax, -184(%rbp)
+	movq -352(%rbp),%r12
+	movq -360(%rbp),%r13
+	movq -368(%rbp),%r14
+	movq -376(%rbp),%r15
+	movq -184(%rbp), %rax
+	movq %rbp, %rsp
+	popq %rbp
+	ret
+	movq -352(%rbp),%r12
+	movq -360(%rbp),%r13
+	movq -368(%rbp),%r14
+	movq -376(%rbp),%r15
+	movq $0, %rax
+	movq %rbp, %rsp
+	popq %rbp
+	ret
+	.section	.rodata
+.LchrC0:
+	.string	""
+	.string	""
+	.text
+	.globl	chr
+	.type	chr, @function
+chr:
+	pushq	%rbp
+	movq	%rsp, %rbp
+	subq	$48, %rsp
+	movl	%edi, -36(%rbp)
+	movq	%fs:40, %rax
+	movq	%rax, -8(%rbp)
+	xorl	%eax, %eax
+	cmpl	$255, -36(%rbp)
+	jle	.Lchr2
+	movl	$-1, %eax
+	jmp	.Lchr4
+.Lchr2:
+	movl	-36(%rbp), %eax
+	movb	%al, -17(%rbp)
+	movzbl	-17(%rbp), %eax
+	movb	%al, -10(%rbp)
+	leaq	.LchrC0(%rip), %rax
+	movb	%al, -9(%rbp)
+	leaq	-10(%rbp), %rax
+	movq	%rax, %rdi
+	call	Str@PLT
+	movl	%eax, -16(%rbp)
+	movl	-16(%rbp), %eax
+.Lchr4:
+	movq	-8(%rbp), %rdx
+	subq	%fs:40, %rdx
+	je	.Lchr5
+	call	__stack_chk_fail@PLT
+.Lchr5:
+	leave
+	ret
 .globl	set
 .type	set, @function
 set:
 	pushq %rbp
 	movq %rsp, %rbp
 	subq $128, %rsp  
-	
 	movq %rdi, -8(%rbp)		
 	movq %rsi, -16(%rbp)	
 	movq %rdx, -24(%rbp)
 	movq -16(%rbp), %rax
-	
 	cltq
-	
 	leaq 0(,%rax,8), %rdx
 	movq -8(%rbp), %rax
 	addq %rax, %rdx	
 	movq -24(%rbp),%rax
 	movq %rax, (%rdx)
-
 	movq $0, %rax
 	movq %rbp, %rsp
 	popq %rbp
 	ret
-
 .globl	get
 .type	get, @function
 get:
 	pushq %rbp
 	movq %rsp, %rbp
 	subq $128, %rsp  
-
     movq %rdi,-8(%rbp)
     movq %rsi,-16(%rbp)
     movq -16(%rbp),%rax
@@ -628,7 +706,98 @@ get:
     movq -8(%rbp),%rax
     addq %rdx,%rax
 	movq (%rax), %rax
-
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
+.globl	poke
+.type	poke, @function
+poke:
+	pushq	%rbp
+	movq	%rsp, %rbp
+	movq	%rdi, -8(%rbp)
+	movq	%rsi, -16(%rbp)
+	movq	-16(%rbp), %rax
+	movq	-8(%rbp), %rdx
+	movq	%rdx, (%rax)
+	popq	%rbp
+	ret
+
+.size	poke, .-poke
+.globl	peek
+.type	peek, @function
+peek:
+	pushq	%rbp
+	movq	%rsp, %rbp
+	movq	%rdi, -8(%rbp)
+	movq	-8(%rbp), %rax
+	movq	(%rax), %rax
+	popq	%rbp
+	ret
+	.size	peek, .-peek
+	
+	.globl	_malloc
+	.type	_malloc, @function
+_malloc:
+	pushq	%rbp
+	movq	%rsp, %rbp
+	subq	$64, %rsp
+	movq	%rdi, -24(%rbp)
+	movq	next_free_index(%rip), %rax
+	movq	%rax, -8(%rbp)
+	movq	-24(%rbp), %rax
+	leaq	0(,%rax,8), %rdx
+	movq	next_free_index(%rip), %rax
+	addq	%rdx, %rax
+	movq	%rax, next_free_index(%rip)
+	movq	-8(%rbp), %rax
+	movq %rbp, %rsp
+	popq %rbp
+	ret
+	.size	_malloc, .-_malloc
+	
+	.globl	write_long
+	.type	write_long, @function
+write_long:
+	pushq	%rbp
+	movq	%rsp, %rbp
+	subq	$64, %rsp
+	movq	%rdi, -24(%rbp)
+	movq	%rsi, -32(%rbp)
+	movq	%rdx, -40(%rbp)
+	movq	-32(%rbp), %rax
+	leaq	0(,%rax,8), %rdx
+	movq	-24(%rbp), %rax
+	addq	%rdx, %rax
+	movq	%rax, -8(%rbp)
+	leaq	heap(%rip), %rdx
+	movq	-8(%rbp), %rax
+	addq	%rax, %rdx
+	movq	-40(%rbp), %rax
+	movq	%rax, (%rdx)
+	movq 	%rbp, %rsp
+	popq 	%rbp
+	ret
+	.size	write_long, .-write_long
+
+	.globl	read_long
+	.type	read_long, @function
+read_long:
+	pushq	%rbp
+	movq	%rsp, %rbp
+	subq	$64, %rsp
+	movq	%rdi, -24(%rbp)
+	movq	%rsi, -32(%rbp)
+	movq	-32(%rbp), %rax
+	leaq	0(,%rax,8), %rdx
+	movq	-24(%rbp), %rax
+	addq	%rdx, %rax
+	movq	%rax, -8(%rbp)
+	leaq	heap(%rip), %rdx
+	movq	-8(%rbp), %rax
+	addq	%rdx, %rax
+	movq	(%rax), %rax
+	movq 	%rbp, %rsp
+	popq 	%rbp
+	ret
+	.size	read_long, .-read_long

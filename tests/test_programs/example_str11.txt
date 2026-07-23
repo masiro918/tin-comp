@@ -1,0 +1,17 @@
+var fstr1: Str = "Hello world";
+
+print_str(fstr1);
+
+var fstr2: Str = str_clone(fstr1);
+fstr1 = "Im Bob!";
+
+print_str(fstr1);
+print_str(fstr2);
+
+fstr2 = "Im Alice";
+print_str(fstr1);
+print_str(fstr2);
+fstr2= str_clone(fstr1);
+fstr1=str_clone("Im Alice");
+print_str(fstr1);
+print_str(fstr2);

@@ -2,7 +2,7 @@
 
 This short manual guides you programming with the programming language. After reading this document you are (hopefully) familiar with the language structure and limitations of the language.
 
-### Contents
+### Content
 
 1.  Main Structures
 2.  Strings
@@ -40,7 +40,7 @@ Like in the C programming language, variable **contexts** (or scopes) are used. 
 *   updating the value of an already defined variable  
     `<variable_name> = [expr];`
     
-*   negative numbers consists **a significant detail**: if you type -1, this is interpret as negative number BUT with whitespace - 1, it is illegal expression: the it is an math operation. So if you want to express calculation a - 10, type with whitespace
+*   negative numbers consists **a significant detail**: if you type -1, this is interpret as negative number BUT with whitespace - 1, it is illegal expression: it is an math operation (subtraction). So, if you want to express calculation a - 10, type with whitespace
     
 * you can define your own functions using
 
@@ -52,7 +52,7 @@ Like in the C programming language, variable **contexts** (or scopes) are used. 
 ​	Defining return type is optional. If return type is not defined, it is assumed as **Int**. Also return value is 
 ​	optional. **The maximum number of the parameters is 6. The compiler does not use the stack for possible additional parameters.**
 
-**Expr** is a mathematical expression, which may also contain function calls that return some value. A boolean value is also valid, but the types of the expression must be compatible with each others.
+**Expr** is a mathematical expression, which may also contain function calls that return some value (on the other words function returns something else than Unit). A boolean value is also valid, but the types of the expression must be compatible with each others.
 
 **BinOp** is of the form `[expr] op [expr]`, where both expressions must return the same type.
 
@@ -66,7 +66,7 @@ The following operators are allowed:
 
 ## 2. Strings
 
-Strings are implemented using the so-called **string pool** technique. An array (or memory area) is created in the generated ELF file, and strings are stored there. The size of the array is 64k bytes, so this is the current limit for strings. Strings are manipulated using functions provided by the included standard library.
+Strings are implemented using the so-called **string pool** technique. An array (or memory area) is created in the generated ELF file, and strings are stored there. The size of the array is 2 MB, so this is the current limit for strings. Strings are manipulated using functions provided by the included standard library.
 
 Strings are created the same way as any other variable:
 
@@ -84,6 +84,9 @@ Strings can be manipulated with the following functions:
     *   concatenates the two strings and returns a **reference** to the newly created combined string.
 *   **str\_len(s1: IntRef): Int**
     *   returns the length of the string.
+*   **str_clone(s1: IntRef): Int**
+    *   clones the string _s1_. On the other words, creates a **new** independent string that is equals of content of _s1_
+
 *   **print\_str(s: Int)**
     *   prints the string referenced by *s* (NOTE! Prints a linebreak at the end.)
 *   **print\_str2(s: Int)**
@@ -109,7 +112,7 @@ A one-dimensional array is created as follows:
 
 where `SIZE` is a positive integer constant. It CANNOT be a variable or any kind of *expression*, because the memory required by the array is allocated already at compile time. Like strings, `arr` is a reference to a memory address where the first element of the array resides. Therefore, if you write for example `new_arr = arr;` and then modify element X of the array `arr`, you will also be modifying element X of the array `new_arr`. This happens precisely because both variables refer to the same first element of the array. So remember that a variable is not the array itself but a *reference*! It may also be important and interesting to realize that `array(N)` is not a function call, even though syntactically it looks like one.
 
-Only integers are actually stored in an array. However, you can seemingly store strings and boolean values in an array as well. Why? Strings appear as strings, but they are also references to memory locations, i.e. they are integers. Boolean values, in turn, are in reality the integers 1 and 0, so they are acceptable for the same reason. In this language, type checking is performed only for binary operators and variable declarations, not for function parameters.
+Only integers are actually stored in an array. However, you can seemingly store strings and boolean values in an array as well. Why? Strings appear as strings, but they are also references to memory locations, i.e. they are integers. Boolean values, in turn, are in reality the integers 1 and 0, so they are acceptable for the same reason. In this language, type checking is performed only for binary operators and variable declarations, not for function parameters. In the case of _any_ type, it is always valid in binary operation.
 
 You can insert a value into an array with
 
@@ -123,16 +126,16 @@ You can retrieve an element from an array with
 
 where `L` is the position in the array. This function returns an integer.
 
-## 4. Structs
+## 4. Structures
 
-Records are complex user-defined data types. For example, it is possible to create a data type `Country` that contains information about the population size and the name of the state (Str + Int). Technically, a record is an array (which therefore cannot be created in a loop (see Chapter 5)), but its members (cf. elements) are referenced by name.
+Structures are complex user-defined data types. For example, it is possible to create a data type `Country` that contains information about the population size and the name of the state (Str + Int). Technically, a structure is dynamically (run-time) created heap memory. The size of the heap memory is 64 kB.
 
-A record must be defined before an **instance** of it is created. The definition should be placed just before the start of the main program.
+A record must be defined before an **instance** of it is created. The definition should be placed just before the start of the main program and other functions using the structure.
 
 Example of a definition:
 
 
-        define struct COUNTRY = { name, population_count };
+    define struct COUNTRY = { name, population_count };
 
 
 Once the definition has been made, N instances of the record can be created, where N >= 0.
@@ -140,7 +143,7 @@ Once the definition has been made, N instances of the record can be created, whe
 Example of creating an instance:
 
 
-        finland = New(COUNTRY);
+    finland = New(COUNTRY);
 
 
 That is, the `New` command is used for creation (NOTE! It looks like a function, but it is *not actually* one.)
@@ -148,14 +151,14 @@ That is, the `New` command is used for creation (NOTE! It looks like a function,
 After this, values can be assigned to the members of the instance:
 
 
-        set(finland, COUNTRY->name, "Suomen tasavalta");
-        set(finland, COUNTRY->population_count, "5500000);
+    write_long(finland, COUNTRY->name, "Republic of Finland");
+    write_long(finland, COUNTRY->population_count, "5500000);
 
 
-The assigned values can be retrieved with the `get` function:
+The assigned values can be retrieved with the `read_long` function:
 
 
-        get(finland, COUNTRY->name);
+    read_long(finland, COUNTRY->name);
 
 
 ## 5. VERY Important to know

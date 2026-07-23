@@ -1,0 +1,30 @@
+fun create_helloworld(): Str {
+	return "Hello world";
+}
+
+fun create_string(): Str {
+	return "";
+}
+
+var str_cloneko: Str = create_helloworld(); // "Hello world";
+print_str(str_cloneko);
+
+var fstr1: Str = str_clone(str_cloneko);
+var fstr2: Str = create_string();
+fstr1 = "I'm [Bob!]";
+fstr1 = str_cat("I", chr(39));
+fstr1 = str_cat(fstr1, "m ");
+fstr1 = str_cat(fstr1, chr(91));
+fstr1 = str_cat(fstr1, "Bob!");
+fstr1 = str_cat(fstr1, chr(93));
+
+print_str(fstr1);	// prints I'm [Bob!]
+print_str(fstr2);	// prints hello world
+
+var bob=str_clone(fstr1);
+
+if str_cmp(bob, fstr1) then {
+	fstr2 = str_clone(bob);
+	print_str(str_cat(bob, fstr2));
+}
+

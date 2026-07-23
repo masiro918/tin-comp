@@ -3,3 +3,6 @@ var_names = {}
 
 global custom_types
 custom_types = []
+
+global externs
+externs = []

@@ -1,0 +1,27 @@
+fun hello() {
+	var a = "hello world";
+	return a;
+}
+
+fun concatenate() {
+    extern fopen;
+    extern fwrite;
+    extern fclose;
+
+	var a = " on suomeksi";
+	var b = " hei maailma";
+	var c = str_cat(a, b);
+
+    var f = fopen("teksti.txt");
+    fwrite(f, c);
+    fclose(f);
+	
+	return str_cat(hello(), c);
+}
+
+fun print_out() {
+	var s = concatenate();
+	print_str(s);
+}
+
+print_out();

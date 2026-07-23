@@ -15,11 +15,9 @@ limitations under the License.
 """
 
 import re
-import sys
-sys.path.append('../')
 
-from src.structs.ir import *
-from src.compiler.compiler_exception import CompilerException
+from structs.ir import *
+from compiler_exception import CompilerException
 
 asm_lines = ""
 
@@ -93,6 +91,10 @@ def translate_to_asm(ir: list[str]) -> str:
         if re.match(r"^(Copy).{0,}", inst):
             src = inst.replace("Copy(", "").split(", ")[0]
             dst = inst.replace("Copy(", "").split(", ")[1]
+            
+            if src.startswith("%r"):
+                asm += f"\tmovq {src}, {dst[:len(dst)-1]}\n"
+                continue
             asm += f"\tmovq {src}, %rax\n"
             asm += f"\tmovq %rax, {dst[:len(dst)-1]}\n"
             continue
@@ -168,7 +170,6 @@ def translate_to_asm(ir: list[str]) -> str:
                     data += f"{label}:\n\t.zero {int(length)*8}\n"
                     data += f".data\n"
                     asm += f"\tleaq {label}(%rip), %rax\n"
-                    pass
                 else:
                     if args.__str__() != "[]":
                     	# We have limited amount of parameters. So we don't use stack for additional paramteters like System V 64 calling convention
@@ -208,17 +209,13 @@ def translate_to_asm(ir: list[str]) -> str:
             value = inst.replace("Ret(", "")[:-1]
             value = value.strip()
 
-            asm = asm + f"\tmovq -1000(%rbp), %r12\n"
-            asm = asm + f"\tmovq -1008(%rbp), %r13\n"
-            asm = asm + f"\tmovq -1016(%rbp), %r14\n"
-            asm = asm + f"\tmovq -1024(%rbp), %r15\n"
+            asm = asm + f"[EXIT]\n"
 
             asm += f"\tmovq {value}, %rax\n"
             asm += f"\tmovq %rbp, %rsp\n\tpopq %rbp\n\tret\n"
             continue
 
-        asm += f"{inst}\n"
-                
+        asm += f"{inst}\n"        
     return asm
 
 def variable_rename(src: list[str]) -> list[str]:
@@ -272,9 +269,8 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
                 else:
                     inst.dest = "x" + inst.dest
             if inst.value[0:3] == "arg":
-                global ptr_param_reg
-                inst.value = param_regs[ptr_param_reg]
-                ptr_param_reg += 1
+                index = int(inst.value.replace("arg", ""))                
+                inst.value = param_regs[index]                
             else:
                 if inst.value[0] != "x":
                     if inst.value == "r12" or inst.value == "r13" or inst.value == "r14" or inst.value == "r15":
@@ -306,7 +302,6 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
             if (inst.cond != None and "x" in inst.cond.__str__()):
                 if len(inst.cond.__str__()) < 3:
                     inst.cond = Label(inst.cond.__str__() + "_") 
-
 
         insts_as_str.append(inst.__str__())
 
@@ -360,7 +355,7 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
             value = value.strip()
 
             if exists(variables, value) == False:
-                raise CompilerException("Assembly generation error: undeclarated variable detected in the IR code.")
+                raise CompilerException(f"Assembly generation error: undeclarated variable detected in the IR code. {value}")
         if re.match(r"(Call).{0,}", inst):
             ret_var = inst.split(", ")[-1].replace(")", "")   
             if exists(variables, ret_var) == False:
@@ -386,7 +381,6 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
                             ptr_top_of_the_stack -= 8
 
             continue
-
     ptr_top_of_the_stack *= -1
 
     asm_lines = add_begin(module_name)
@@ -394,14 +388,24 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
     asm_lines = asm_lines + f"{module_name}:\n"
     asm_lines = asm_lines + f"""\tpushq %rbp
 \tmovq %rsp, %rbp
-\tsubq $1040, %rsp
+\tsubq [STACK_SIZE], %rsp
 """
-    
+    # restore base pointer
+    sp = (len(variables.values()) * 8 * 2)
+    if (ptr_top_of_the_stack * -1) > 1000:
+        raise CompilerException("Too many memory allocations in the function!")
+    if sp > 1040:
+        sp = 1040
+    if sp < 128:
+        sp = 128
+    asm_lines = asm_lines.replace("[STACK_SIZE]", f"${sp}")
+    ptr_top_of_the_stack = -8
+ 
     if module_name != "main":
-        asm_lines = asm_lines + f"\tmovq %r12, -1000(%rbp)\n"
-        asm_lines = asm_lines + f"\tmovq %r13, -1008(%rbp)\n"
-        asm_lines = asm_lines + f"\tmovq %r14, -1016(%rbp)\n"
-        asm_lines = asm_lines + f"\tmovq %r15, -1024(%rbp)\n"
+        asm_lines = asm_lines + f"\tmovq %r12,-{int(sp)-32}(%rbp)\n"
+        asm_lines = asm_lines + f"\tmovq %r13,-{int(sp)-24}(%rbp)\n"
+        asm_lines = asm_lines + f"\tmovq %r14,-{int(sp)-16}(%rbp)\n"
+        asm_lines = asm_lines + f"\tmovq %r15,-{int(sp)-8}(%rbp)\n"
     
     # do translate from ir to x86-64 assembly
     asm_lines = asm_lines + translate_to_asm(variable_rename(insts_as_str))
@@ -410,10 +414,14 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
     asm_lines = add_double_dots(asm_lines)
 
     if module_name != "main":
-        asm_lines = asm_lines + f"\tmovq -1000(%rbp), %r12\n"
-        asm_lines = asm_lines + f"\tmovq -1008(%rbp), %r13\n"
-        asm_lines = asm_lines + f"\tmovq -1016(%rbp), %r14\n"
-        asm_lines = asm_lines + f"\tmovq -1024(%rbp), %r15\n"
+        exit_statement = ""
+        exit_statement = exit_statement + f"\tmovq -{int(sp)-32}(%rbp),%r12\n"
+        exit_statement = exit_statement + f"\tmovq -{int(sp)-24}(%rbp),%r13\n"
+        exit_statement = exit_statement + f"\tmovq -{int(sp)-16}(%rbp),%r14\n"
+        exit_statement = exit_statement + f"\tmovq -{int(sp)-8}(%rbp),%r15\n"
+
+        asm_lines = asm_lines + exit_statement
+        asm_lines = asm_lines.replace("[EXIT]", exit_statement)
 
     asm_lines = asm_lines + """\tmovq $0, %rax
 \tmovq %rbp, %rsp
@@ -421,11 +429,10 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
 \tret
 """
 
-    # restore base pointer
-    ptr_top_of_the_stack = -8
-
     # restore variables
     variables = {}
+
+    # restore data
 
     # add data section
     asm_lines += ".section .data\n"
@@ -435,5 +442,7 @@ def generate_asm(ir_instructions: list[Instruction], module_name: str):
     asm_lines = asm_lines.replace(".L", f".L_{module_name}_")
     asm_lines = asm_lines.replace("L", f"L_{module_name}_")
     asm_lines = asm_lines.replace("x0_", "%rax")
+
+
     ptr_param_reg = 0
     return asm_lines

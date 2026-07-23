@@ -1,12 +1,10 @@
 class IRVar():
-    global __counter
     __counter = 1
 
-    def __init__(self, name: str = None):
+    def __init__(self, name: str | None = None):
         if name == None:
-            global __counter
-            self.name = f"x{__counter}"
-            __counter += 1
+            self.name = f"x{IRVar.__counter}"
+            IRVar.__counter += 1
             return
         self.name = name
 

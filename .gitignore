@@ -8,7 +8,7 @@ htmlcov
 *.src
 a.s
 a.ir
-
-make_prod_build.sh
+*.spec
+**/dist/**
 
 **build**

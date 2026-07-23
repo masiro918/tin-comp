@@ -14,22 +14,48 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import sys
 import re
 
-sys.path.append("../")
-
-from src.compiler.compiler_exception import CompilerException
-
-from src.compiler.globls import custom_types
-
-from src.structs._ast import Token
+from compiler_exception import CompilerException
+from frontend.globls import custom_types, externs
+from structs._ast import Token
 
 class Tokenizer():
+
+    words = ['while', 'if', 'else', 'do', 'then', 'var', 'Int', 'Str']
+    tok_id = 7362834
 
     def __init__(self, source_code: str | None = None):
         self.source_code = source_code
         self.structs = []
+
+    def re_express_empty_string(self, source_code: str) -> str:
+        return source_code.replace("\"\"", "create_empty_str()")
+    
+    def re_express_constant_string(self, source_code: str) -> str:
+        lines = source_code.split("\n")
+        regex = r"return \"(.)*\"\;"
+
+        for line in lines:
+            line = line.strip()
+
+            if re.match(regex, line):
+                occurrence = line.replace("return ", "")[:-1]
+                return source_code.replace(occurrence, f"str_cat(create_empty_str(), {occurrence})")
+        return source_code
+    
+    def re_express_strings_start_by_letter_L(self, tokens: list[Token]) -> list[Token]:
+        new_tokens = []
+        for token in tokens:
+            if token.text.startswith("\""):
+                if token.text.strip().startswith("\"L"):
+                    new_text = token.text.replace("L", f"upperl{self.tok_id}", 1)
+                    token.text = new_text
+                    new_tokens.append(token)
+                    continue
+            new_tokens.append(token)
+
+        return new_tokens
         
     def replace_sturcts_and_news(self, source_code: str) -> str:
         lines = source_code.split("\n")
@@ -53,8 +79,6 @@ class Tokenizer():
                 line = line.replace(")", "")
                 line = line.replace(";", "")
 
-                desuraing_line = line + ";"
-                
                 struct_type = line.split("=")[1].strip()
 
                 found = False
@@ -80,14 +104,13 @@ class Tokenizer():
                     global custom_types
                     custom_types.append(struct)
                 else: continue
-
             new_lines.append(line)
         
         source_code = '\n'.join(new_lines)
         return source_code
 
     def clean_comments(self, source_code: str) -> str:
-        """ Cleans single line comments. """
+        """ Cleans a single line comments. """
 
         new_lines = []
         lines = source_code.split("\n")
@@ -106,15 +129,35 @@ class Tokenizer():
         for line in new_lines: ret_str += f"{line.strip()}"
         return ret_str
     
-    def tokenize(self, source_code: str | None = None) -> list[str]:
+    def handle_externs(self, source_code: str) -> str:
+        lines = source_code.split("\n")
+
+        new_lines = []
+        for line in lines:
+            if "extern " in line.strip():
+                line = line.replace(";", "")
+                extern_func = line.split(" ")[1]
+
+                global externs
+                externs.append(extern_func)
+                new_lines.append("")
+            else:
+                new_lines.append(line)
+        return '\n'.join(new_lines)
+
+    
+    def tokenize(self, source_code: str = "") -> list[str]:
         """ Casts source code into tokens as string objects """
 
         # desugars
         source_code = self.replace_sturcts_and_news(source_code)
+        source_code = self.handle_externs(source_code)
         source_code = self.clean_comments(source_code)
+        source_code = self.re_express_empty_string(source_code)
+        source_code = self.re_express_constant_string(source_code)
 
         # Replace whitespaces and tab spaces
-        source_code = source_code.replace("\t", " ")     
+        source_code = source_code.replace("\t", " ")  
         source_code = source_code.replace(" ", "|")
         source_code = source_code.replace("->", "^^")
         source_code = source_code.strip()
@@ -183,9 +226,8 @@ class Tokenizer():
             tokens.append(t)
         return tokens
     
-    def __do_tokenize(self, source_code: str, startpoint: int) -> dict[int, list[str]]:
-        lines = source_code.split("\n")
-
+    def do_tokenize(self, source: str, startpoint: int) -> dict[int, list[str]]:
+        lines = source.split("\n")
         tokens_as_str = {}
 
         lineno=startpoint
@@ -193,19 +235,18 @@ class Tokenizer():
             tokens = self.tokenize(line)
             tokens_as_str[lineno] = tokens
             lineno += 1
-        
         return tokens_as_str
     
-    def tokenize_with_lineno(self, source_code: str, startpoint: int) -> dict[int, list[str]]:
-        return self.__do_tokenize(source_code, startpoint)
+    def tokenize_with_lineno(self, source: str, startpoint: int) -> dict[int, list[str]]:
+        return self.do_tokenize(source, startpoint)
     
     def generate_tokens(self, source_code: str | None = None, startpoint: int = 1) -> list[Token]:
         """ Generates Token obejcts by the source code. """
 
         if source_code == None:
-            tokens_as_str_in_dict = self.__do_tokenize(self.source_code, startpoint)
+            tokens_as_str_in_dict = self.do_tokenize(self.source_code, startpoint)
         else:
-            tokens_as_str_in_dict = self.__do_tokenize(source_code, startpoint)
+            tokens_as_str_in_dict = self.do_tokenize(source_code, startpoint)
 
         tokens_as_tokenobj = []
 
@@ -214,15 +255,13 @@ class Tokenizer():
                 token = self.__build_token(str_token, lineno)
                 tokens_as_tokenobj.append(token)
 
+        tokens_as_tokenobj = self.re_express_strings_start_by_letter_L(tokens_as_tokenobj)
         return tokens_as_tokenobj
-
     
     def __is_word(self, string: str) -> bool:
         """ Checks if input is reserved 'word' like while or else. """
-
-        words = ['while', 'if', 'else', 'do', 'then', 'var', 'Int']
-
-        if string in words:
+        
+        if string in Tokenizer.words:
             return True
         return False
     
@@ -243,13 +282,13 @@ class Tokenizer():
         return False
 
     def __build_token(self, token_as_str: str, lineno: int | None = None) -> Token:
-        type=self.__resolve_token_type(token_as_str)
+        type=self.__solve_token_type(token_as_str)
         return Token(lineno, type, token_as_str)
     
     def __do_string(self, source_code: str, start_i: int) -> str:
         string = source_code[(start_i+1):]
 
-        ret_string = '"'
+        ret_string = "\""
         for c in string:
             if c == '|':
                 ret_string += " "
@@ -260,10 +299,10 @@ class Tokenizer():
             ret_string += c
         raise CompilerException("Expected " + '"')
     
-    def resolve_type(self, token_as_str: str) -> str:
-        return self.__resolve_token_type(token_as_str)
+    def solve_type(self, token_as_str: str) -> str:
+        return self.__solve_token_type(token_as_str)
     
-    def __resolve_token_type(self, token_as_str: str) -> str:
+    def __solve_token_type(self, token_as_str: str) -> str:
         regex_parentheses = r"^[(|)]$"
         regex_braces = r"^[{|}]$"
         regex_punctuations = r"^[:|;]$"

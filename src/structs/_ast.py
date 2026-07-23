@@ -1,10 +1,6 @@
-
-
-import sys
 from typing import Any
-sys.path.append("../")
 
-from src.compiler.compiler_exception import CompilerException
+from compiler_exception import CompilerException
 
 class Token():
 
@@ -12,10 +8,6 @@ class Token():
         self.L = L
         self.type = type
         self.text = text
-    """
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(L={self.L}, type='{self.type}', text='{self.text}')"
-    """
     def __str__(self) -> str:
         return self.text
     
@@ -84,7 +76,6 @@ class WhileLoop(Expression):
 
     def __repr__(self):
         return f"WhileLoop(compare=[{self.compare}], body=[{self.body}])"
-        
 
 class Block(Expression):
     def __init__(self, expressions: list[Expression], is_unit=False):
@@ -141,17 +132,10 @@ class Return(Expression):
         self.value = value
     def __repr__(self):
         return f"Return(value=[{self.value}])"
-    
-class Struct(Expression):
-    def __init__(self, name: str, fields: list[str]):
-        self.name = name
-        self.fields = fields
-    def __repr__(self):
-        return f"Struct(name=[{self.name}], fields=[{', '.join(self.fields)}])"
 
 class Type():
     def __init__(self, type_name: str, custom_type = False):
-        if type_name not in ['Int', 'Bool', 'Unit', 'Str', 'String'] and custom_type == False:
+        if type_name not in ['Int', 'Bool', 'Unit', 'Str', 'String', 'Any'] and custom_type == False:
             raise CompilerException(f"Illegal variable type: {type_name}")
         self.type_name = type_name
 

@@ -14,12 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import sys
-sys.path.append("../")
+from compiler_exception import CompilerException
 
-from src.compiler.compiler_exception import CompilerException
-
-from src.compiler.misc import (
+from frontend.misc import (
     add_toplevel_context, 
     add_compare_operator, 
     add_semidots, 
@@ -32,7 +29,7 @@ from src.compiler.misc import (
     replace_struct_inits
 )
 
-from src.structs._ast import (
+from structs._ast import (
     Token, 
     Expression, 
     Literal, 
@@ -48,10 +45,8 @@ from src.structs._ast import (
     Break,
     Continue,
     Return,
-    String,
-    Struct
+    String
 )
-
 
 class Parser():
 
@@ -345,10 +340,7 @@ class Parser():
 
             if token1.text.startswith("\""):
                 return parse_string()
-            
-            if token1.text == "struct":
-                return parse_struct()
-            
+                        
             if token1.text == "return":
                 return parse_return()
 
@@ -373,10 +365,10 @@ class Parser():
             if is_binaryop(tokens[pos:]):
                 return parse_binaryop()
             
-            if ((token1_type == "IDENTIFIER") and token2.text == "("):
+            if (token1_type == "IDENTIFIER") and token2.text == "(":
                 return parse_function_call()
             
-            if ((token1_type == "IDENTIFIER") and token2.text == "="):
+            if (token1_type == "IDENTIFIER") and token2.text == "=":
                 return parse_assignment()
             
             if token1_type == "INT_LITERAL":

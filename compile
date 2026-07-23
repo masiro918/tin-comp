@@ -1,15 +1,16 @@
 #!/bin/sh
-cd tests
+
+cd src
 
 if [ -n "$4" ]
 then
-	python3 ../src/compiler/main.py ../$1 $2 $3 $4
+	python3 main.py ../$1 $2 $3 $4
 else
 	if [ -n "$3" ]
 	then
-		python3 ../src/compiler/main.py ../$1 $2 $3
+		python3 main.py ../$1 $2 $3
 	else
-		python3 ../src/compiler/main.py ../$1 $2
+		python3 main.py ../$1 $2
 	fi
 fi
 mv $2 ../$2 > /dev/null 2>&1

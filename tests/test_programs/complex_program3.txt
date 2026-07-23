@@ -1,0 +1,27 @@
+fun do_calculation(i, j, k, b, d): Int {
+    var A = array(100);
+
+    while i < 100 do {
+    	set(A, i, 0);
+        while j < 100 do {            
+            while k < 100 do {
+                var rslt = get(A, i) + j + d * b;
+                set(A, i, rslt);
+                k=k+1
+            }
+            j=j+1;
+        }
+        i=i+1;
+    }
+    
+    var sum: Int = 0;
+    while i >= 0 do {
+    	var val: Int = get(A, i);
+    	sum = sum + val;
+    	i = i - 1;
+    }
+
+    return sum;
+}
+
+print_int(7 + do_calculation(0, 0, 0, 55, 44));
