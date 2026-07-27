@@ -11,6 +11,8 @@ Compiled programs may link against src/stdlib.s, which is distributed
 under the MIT No Attribution License (MIT-0). The file (stdlib.s) may be
 used, modified, and redistributed without restriction.
 
+Licenses of the programs needed to construct and run an executable is located into directory doc/licenses. Consult these licenses if you intend to use the builded executable.
+
 ================================================================================
 
                                  Apache License
