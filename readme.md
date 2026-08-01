@@ -2,7 +2,7 @@
 
 This project is a compiler for a simple imperative and recursive programming language resembling the C language. The compiler includes both a frontend (e.g. parser, simple type checking) and a backend (assembly code generation). The compilation process produces binary executables runnable on the AMD64 instruction set architecture in a GNU/Linux environment using AMD64 System V Calling Convention. The compiler works with the CPython interpreter (v3.10) without using any libraries outside Python’s standard library or any other dependencies in the software distribution.
 
-Despite of some different implement strategies and choices, the compiler and the programming language largely follow the practices and principles introduced in the course materials of the University of Helsinki’s *Compilers* course \[1].
+The compiler architecture is based on well-established compiler construction principles and broadly follows the multi-stage design presented in the University of Helsinki's *Compilers* course materials. Since then, the project has evolved substantially through independently implemented language features, runtime components, optimizations, and backend improvements. The implementation is continuously validated by an extensive end-to-end test suite covering the compiler pipeline from source code to executable binaries.
 
 ## 0. Introduction
 
@@ -23,7 +23,7 @@ Below is a brief overview of the current features. If you want to jump directly 
 ### 0.2 Limitations
 
 *   the number of local variables is limited
-*   the internal code quality is ***very poor*** and should be improved
+*   the internal code quality is ***poor*** and should be improved
 
 ### 0.3 Future Plans
 
