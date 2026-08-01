@@ -8,5 +8,5 @@ cp license.txt src/dist/main/license.txt
 mv src/dist/main/main src/dist/main/tincomp
 
 mkdir src/dist/main/THIRD_PARTY_LICENSES
-mv doc/licenses/cpython_license.txt src/dist/main/THIRD_PARTY_LICENSES/cpython_license.txt
-mv doc/licenses/py_installer_license.txt src/dist/main/THIRD_PARTY_LICENSES/py_installer_license.txt
+mv doc/licenses/Python-PSF-LICENSE.txt src/dist/main/THIRD_PARTY_LICENSES/Python-PSF-LICENSE.txt
+mv doc/licenses/Pyinstaller-LICENSE.txt src/dist/main/THIRD_PARTY_LICENSES/Pyinstaller-LICENSE.txt
