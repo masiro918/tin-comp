@@ -164,7 +164,7 @@ Before the compilation process begins, the code is parsed into its own so-called
 - variables are mapped into rbp-register based by 1:1 -> e.g. x1 => -8(%rbp) and x2 => -16(%rbp)
   - some variables are mapped into register r12-15 (see Chapter 2)
   - some variables may be removed later by the optimizer (See Chapter 2)
-- currently the stack size is a constant: 1024 bytes despite of real count of the local variables -> this limits the maximum number of variables in a single subprogram
+- the stack size is dynamic, but it has a limit (there is maximum count of variables in a single function)
 - boolean values is interpreted as integers 1 and 2
 - strings and other data (e.g. arrays and structs) typed variables is expressed as a pointer that indicated into memory locations
   - this is not efficient, but clear
