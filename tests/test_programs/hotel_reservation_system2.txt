@@ -1,0 +1,178 @@
+fun days_in_month(kk): Int {
+	if kk == 1 then { return 31; }
+	if kk == 2 then { return 28; }
+	if kk == 3 then { return 31; }
+	if kk == 4 then { return 30; }
+	if kk == 5 then { return 31; }
+	if kk == 6 then { return 30; }
+	if kk == 7 then { return 31; }
+	if kk == 8 then { return 31; }
+	if kk == 9 then { return 30; }
+	if kk == 10 then { return 31; }
+	if kk == 11 then { return 30; }
+	if kk == 12 then { return 31; }
+	return 0;
+}
+
+fun is_valid_date(pp, kk): Bool {
+	if kk < 1 then { return false; }
+	if kk > 12 then { return false; }
+	if pp < 1 then { return false; }
+	if pp > days_in_month(kk) then { return false; }
+	return true;
+}
+
+fun to_day_of_year(pp, kk): Int {
+	var day = 0;
+	var m = 1;
+	while m < kk do {
+		day = day + days_in_month(m);
+		m = m + 1;
+	}
+	day = day + pp;
+	return day;
+}
+
+fun overlaps(a_start, a_end, b_start, b_end): Bool {
+	if a_start <= b_end then {
+		if b_start <= a_end then { return true; }
+	}
+	return false;
+}
+
+fun print_one_reservation(res) {
+	define struct Varaus = { huone, alku_paiva, loppu_paiva, alku_pp, alku_kk, loppu_pp, loppu_kk };
+	print_str2("Huone ");
+	print_str2(int_to_str(read_long(res, Varaus->huone)));
+	print_str2(" : ");
+	print_str2(int_to_str(read_long(res, Varaus->alku_pp)));
+	print_str2(".");
+	print_str2(int_to_str(read_long(res, Varaus->alku_kk)));
+	print_str2(" - ");
+	print_str2(int_to_str(read_long(res, Varaus->loppu_pp)));
+	print_str2(".");
+	print_str2(int_to_str(read_long(res, Varaus->loppu_kk)));
+	print_str("");
+}
+
+fun print_all_reservations(varaukset, count) {
+	if count == 0 then {
+		print_str("Ei varauksia.");
+	} else {
+		print_str("Kaikki varaukset:");
+		var i = 0;
+		while i < count do {
+			var r = get(varaukset, i);
+			print_one_reservation(r);
+			i = i + 1;
+		}
+	}
+}
+
+fun has_conflict(varaukset, reservation_count, huone, alku, loppu): Bool {
+	define struct Varaus = { huone, alku_paiva, loppu_paiva, alku_pp, alku_kk, loppu_pp, loppu_kk };
+	var i = 0;
+	while i < reservation_count do {
+		var old = get(varaukset, i);
+		if read_long(old, Varaus->huone) == huone then {
+			if overlaps(
+				alku,
+				loppu,
+				read_long(old, Varaus->alku_paiva),
+				read_long(old, Varaus->loppu_paiva)
+			) then {
+				return true;
+			}
+		}
+		i = i + 1;
+	}
+	return false;
+}
+
+fun handle_reserve(varaukset, reservation_count): Int {
+	define struct Varaus = { huone, alku_paiva, loppu_paiva, alku_pp, alku_kk, loppu_pp, loppu_kk };
+	
+	print_str("Anna huone (1-100):");
+	var huone = str_to_int(input_str());
+
+	print_str("Anna alkupaiva (pp):");
+	var pp1 = str_to_int(input_str());
+	print_str("Anna alkukuukausi (kk):");
+	var kk1 = str_to_int(input_str());
+
+	print_str("Anna loppupaiva (pp):");
+	var pp2 = str_to_int(input_str());
+	print_str("Anna loppukuukausi (kk):");
+	var kk2 = str_to_int(input_str());
+
+	if (huone < 1) or (huone > 100) then {
+		print_str("Virhe: huoneen oltava 1-100.");
+		return reservation_count;
+	}
+
+	if is_valid_date(pp1, kk1) == false then {
+		print_str("Virhe: aloituspaivamaara ei kelpaa.");
+		return reservation_count;
+	} 
+	
+	if is_valid_date(pp2, kk2) == false then {
+		print_str("Virhe: lopetuspaivamaara ei kelpaa.");
+		return reservation_count;
+	}
+
+	var alku = to_day_of_year(pp1, kk1);
+	var loppu = to_day_of_year(pp2, kk2);
+
+	if alku > loppu then {
+		print_str("Virhe: alku ei voi olla lopun jalkeen.");
+		return reservation_count;
+	}
+
+	if has_conflict(varaukset, reservation_count, huone, alku, loppu) then {
+		print_str("Varaus epaonnistui: paallekkainen varaus.");
+		return reservation_count;
+	}
+
+	var uusi = New(Varaus);
+	write_long(uusi, Varaus->huone, huone);
+	write_long(uusi, Varaus->alku_paiva, alku);
+	write_long(uusi, Varaus->loppu_paiva, loppu);
+	write_long(uusi, Varaus->alku_pp, pp1);
+	write_long(uusi, Varaus->alku_kk, kk1);
+	write_long(uusi, Varaus->loppu_pp, pp2);
+	write_long(uusi, Varaus->loppu_kk, kk2);
+
+	set(varaukset, reservation_count, uusi);
+	print_str("Varaus onnistui.");
+	return reservation_count + 1;
+}
+
+fun begin() {
+	var varaukset = array(999);
+	var reservation_count: Int = 0;
+
+	print_str("Hotellin varausjarjestelma");
+	print_str("Komennot: reserve print_all exit");
+
+	while true do {
+		print_str2("> ");
+		var cmd = input_str();
+
+		if str_cmp(cmd, "exit") then {
+			print_str("Lopetetaan.");
+			break;
+		} else {
+			if str_cmp(cmd, "print_all") then {
+			print_all_reservations(varaukset, reservation_count);
+			} else {
+				if str_cmp(cmd, "reserve") then {
+					reservation_count = handle_reserve(varaukset, reservation_count);
+				} else {
+					print_str("Tuntematon komento. Kayta: reserve print_all exit");
+				}
+			}
+		}
+	}
+}
+
+begin();

@@ -1135,3 +1135,49 @@ def test_case94():
     assert "Huone 10 : 1.1 - 3.1" in proc.stdout
     assert "Huone 10 : 5.1 - 6.1" in proc.stdout
     assert "Huone 25 : 10.2 - 12.2" in proc.stdout
+
+def test_case95():
+    import subprocess
+
+    main("test_programs/hotel_reservation_system2.txt", "a.out", "../src/")
+    input_data = (
+        "reserve\n"
+        "10\n"
+        "1\n"
+        "1\n"
+        "3\n"
+        "1\n"
+        "reserve\n"
+        "10\n"
+        "5\n"
+        "1\n"
+        "6\n"
+        "1\n"
+        "reserve\n"
+        "25\n"
+        "10\n"
+        "2\n"
+        "12\n"
+        "2\n"
+        "reserve\n"
+        "10\n"
+        "2\n"
+        "1\n"
+        "4\n"
+        "1\n"
+        "print_all\n"
+        "exit\n"
+    )
+
+    proc = subprocess.run(
+        ["./a.out"],
+        input=input_data,
+        text=True,
+        capture_output=True
+    )
+
+    assert proc.stdout.count("Varaus onnistui.") == 3
+    assert "Varaus epaonnistui: paallekkainen varaus." in proc.stdout
+    assert "Huone 10 : 1.1 - 3.1" in proc.stdout
+    assert "Huone 10 : 5.1 - 6.1" in proc.stdout
+    assert "Huone 25 : 10.2 - 12.2" in proc.stdout

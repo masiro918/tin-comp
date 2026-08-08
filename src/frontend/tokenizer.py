@@ -198,7 +198,7 @@ class Tokenizer():
                     long_token = ""
                 tmp_tokens.append(c)
             else:
-                if self.__is_word(long_token):
+                if self.__is_word(long_token) and source_code[i+1] == "|":
                     tmp_tokens.append(long_token)
                     long_token = ""
                 else:
