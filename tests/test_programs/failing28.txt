@@ -1,0 +1,17 @@
+define struct Valtio = { nimi, asukkaiden_lkm };
+define struct Presidentti = { valtio, nimi, syntymavuosi };
+
+fun get_presidents_country_name(president): Str {
+    return read_long(read_long(president, Presidentti->valtio), Valtio->nimi;
+}
+
+var suomi = New(Valtio);
+write_long(suomi, Valtio->nimi, "Suomi");
+write_long(suomi, Valtio->asukkaiden_lkm, 5500000);
+
+var stubb = New(Presidentti);
+write_long(stubb, Presidentti->valtio, suomi);
+write_long(stubb, Presidentti->nimi, "Stubb");
+write_long(stubb, Presidentti->syntymavuosi, 1968);
+
+print_str2(get_presidents_country_name(stubb));

@@ -1,0 +1,17 @@
+define struct Presidentti = { nimi, syntymavuosi };
+
+fun print_birth_info(president) {
+    print_str2("Tietoja: ");
+    {
+        var vuosi = read_long(president, Presidentti->syntymavuosi);
+        print_int(vuosi);
+    }
+    print_str2(str_cat(" (tarkistus: ", int_to_str(vuosi)));  // vuosi ei näy tässä
+    print_str2(")");
+}
+
+var p = New(Presidentti);
+write_long(p, Presidentti->nimi, "Stubb");
+write_long(p, Presidentti->syntymavuosi, 1968);
+
+print_birth_info(p);

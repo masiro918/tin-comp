@@ -1,0 +1,16 @@
+define struct Valtio = { nimi, asukkaiden_lkm };
+define struct Presidentti = { valtio, nimi, syntymavuosi };
+
+var suomi = New(Valtio);
+write_long(suomi, Valtio->nimi, "Suomi");
+write_long(suomi, Valtio->asukkaiden_lkm, 5500000);
+
+var stubb = New(Presidentti);
+write_long(stubb, Presidentti->valtio, suomi);
+write_long(stubb, Presidentti->nimi, "Stubb");
+write_long(stubb, Presidentti->syntymavuosi, 1968);
+
+if (read_long(stubb, Presidentti->syntymavuosi) == 1968) then
+{
+    print_str2("Täsmävuosi löytyi");
+;

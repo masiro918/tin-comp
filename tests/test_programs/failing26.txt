@@ -1,0 +1,19 @@
+fun is_older_than_1950(president): Int {
+    return read_long(president, Presidentti->syntymavuosi) < 1950;
+}
+
+define struct Valtio = { nimi, asukkaiden_lkm };
+define struct Presidentti = { valtio, nimi, syntymavuosi };
+
+var usa = New(Valtio);
+write_long(usa, Valtio->nimi, "Amerikan yhdysvallat");
+write_long(usa, Valtio->asukkaiden_lkm, 331449281);
+
+var trump = New(Presidentti);
+write_long(trump, Presidentti->valtio, usa);
+write_long(trump, Presidentti->nimi, "Trump");
+write_long(trump, Presidentti->syntymavuosi, 1946);
+
+if is_older_than_1950(trump) then {   // <- erittäin pieni mutta olennainen syntaksiero
+    print_str2("Syntynyt ennen vuotta 1950");
+}

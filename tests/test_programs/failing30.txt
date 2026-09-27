@@ -1,0 +1,17 @@
+define struct Valtio = { nimi, asukkaiden_lkm };
+define struct Presidentti = { valtio, nimi, syntymavuosi };
+
+var trump = New(Presidentti);
+write_long(trump, Presidentti->nimi, "Trump");
+write_long(trump, Presidentti->syntymavuosi, 1946);
+
+if 1 == 1 then {
+    var arr = array(66);
+    var usa = New(Valtio);
+    write_long(usa, Valtio->nimi, "Amerikan yhdysvallat");
+    write_long(usa, Valtio->asukkaiden_lkm, 331449281);
+}
+
+write_long(trump, Presidentti->valtio, usa);  // usa ei näy tässä
+
+print_str2(read_long(trump, Presidentti->nimi));

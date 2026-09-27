@@ -116,7 +116,7 @@ def main(source_file: str, target_file = "a.out", base_dir = "", asm_output_file
 
         if asm_output_file: os.system(f"mv tmp.s {target_file}")
         else:
-            os.system(f"c99 -no-pie -mcmodel=large -o {target_file} tmp.s")
+            os.system(f"c99 -mcmodel=large -o {target_file} tmp.s")
             os.remove("tmp.s")
     except Exception as e:
         raise e

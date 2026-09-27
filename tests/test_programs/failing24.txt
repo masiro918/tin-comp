@@ -1,0 +1,26 @@
+define struct Valtio = { nimi, asukkaiden_lkm };
+define struct Presidentti = { valtio, nimi, syntymavuosi };
+
+fun get_population(president): Int {
+    return read_long(read_long(president, Presidentti->valtio), Valtio->asukkaiden_lkm);
+}
+
+var presidents = array(1);
+var suomi = New(Valtio);
+write_long(suomi, Valtio->nimi, "Suomi");
+write_long(suomi, Valtio->asukkaiden_lkm, 5500000);
+
+var stubb = New(Presidentti);
+write_long(stubb, Presidentti->valtio, suomi);
+write_long(stubb, Presidentti->nimi, "Stubb");
+write_long(stubb, Presidentti->syntymavuosi, 1968);
+set(presidents, 0, stubb);
+
+var i = 0;
+while i < 1 do {
+    var p = get(presidents, i);
+    print_int(get_population(p));
+    i = i + 1;
+)
+
+print_str2(get_country_name(stubb));

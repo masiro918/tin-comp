@@ -1,0 +1,21 @@
+define struct Valtio = { nimi, asukkaiden_lkm };
+define struct Presidentti = { valtio, nimi, syntymavuosi };
+
+var presidents = array(1);
+
+var suomi = New(Valtio);
+write_long(suomi, Valtio->nimi, "Suomi");
+write_long(suomi, Valtio->asukkaiden_lkm, 5500000);
+
+var stubb = New(Presidentti);
+write_long(stubb, Presidentti->valtio, suomi);
+write_long(stubb, Presidentti->nimi, "Stubb");
+write_long(stubb, Presidentti->syntymavuosi, 1968);
+set(presidents, 0, stubb);
+
+var i = 0;
+while i < 1 then {
+    var p = get(presidents, i);
+    print_str2(read_long(p, Presidentti->nimi));
+    i = i + 1;
+}
