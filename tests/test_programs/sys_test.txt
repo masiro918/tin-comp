@@ -1,0 +1,15 @@
+fun run_cmd(cmd): Int {
+    return sys(cmd);
+}
+
+fun _main() {
+    while true do {
+        var input = input_str();
+        if str_cmp(input, "exit") then {
+            break;
+        }
+        sys(input);
+    }
+}
+
+_main();

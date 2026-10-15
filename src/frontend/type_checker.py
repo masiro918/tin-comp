@@ -254,6 +254,10 @@ def typecheck(node: Expression) -> Type | Any:
                 node.func_type = 'Int'
                 return Type('Int')
 
+            if node.func_name == "sys": 
+                node.func_type = 'Int'
+                return Type('Int')
+
             global userdefined_functions
             for fun in userdefined_functions:
                 if node.func_name == fun[0]:

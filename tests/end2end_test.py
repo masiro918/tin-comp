@@ -1181,3 +1181,22 @@ def test_case95():
     assert "Huone 10 : 1.1 - 3.1" in proc.stdout
     assert "Huone 10 : 5.1 - 6.1" in proc.stdout
     assert "Huone 25 : 10.2 - 12.2" in proc.stdout
+
+def test_case96():
+    import subprocess
+
+    main("test_programs/sys_test.txt", "a.out", "../src/")
+    input_data = (
+        "ls\n"
+        "exit\n"
+    )
+
+    proc = subprocess.run(
+        ["./a.out"],
+        input=input_data,
+        text=True,
+        capture_output=True
+    )
+
+    assert "a.out" in proc.stdout
+    assert "end2end_test.py" in proc.stdout

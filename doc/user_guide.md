@@ -86,7 +86,6 @@ Strings can be manipulated with the following functions:
     *   returns the length of the string.
 *   **str_clone(s1: IntRef): Int**
     *   clones the string _s1_. On the other words, creates a **new** independent string that is equals of content of _s1_
-
 *   **print\_str(s: Int)**
     *   prints the string referenced by *s* (NOTE! Prints a linebreak at the end.)
 *   **print\_str2(s: Int)**
@@ -101,6 +100,11 @@ Strings can be manipulated with the following functions:
     *   gets user input (stdin) and returns reference to the inputed string
 *   **create_empty_str(): Int**
     *   creates empty string and returns reference to the created string
+
+You can access to the host operating system by _sys_ function
+
+- **sys(s: IntRef)**
+  - run CMD command in the operating system
 
 _**IntRef** is a real integer but it is also memory address for the string. Be careful if you manipulate the value, it is possible to reference out of the string!_
 

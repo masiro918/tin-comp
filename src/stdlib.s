@@ -672,8 +672,8 @@ chr:
 .Lchr5:
 	leave
 	ret
-.globl	set
-.type	set, @function
+	.globl	set
+	.type	set, @function
 set:
 	pushq %rbp
 	movq %rsp, %rbp
@@ -801,3 +801,21 @@ read_long:
 	popq 	%rbp
 	ret
 	.size	read_long, .-read_long
+
+	.globl  sys
+	.type   sys, @function
+sys:
+	pushq   %rbp
+	movq    %rsp, %rbp
+	subq    $16, %rsp
+	movl    %edi, -4(%rbp)
+	movl    -4(%rbp), %eax
+	cltq
+	leaq    __mem(%rip), %rdx
+	addq    %rdx, %rax
+	movq    %rax, %rdi
+	call    system@PLT
+	leave
+	ret
+
+
